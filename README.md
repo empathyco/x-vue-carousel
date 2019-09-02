@@ -1,4 +1,4 @@
-# vue-carousel
+# empathy-vue-carousel
 
 ## Project setup
 ```

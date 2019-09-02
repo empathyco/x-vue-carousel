@@ -1,13 +1,25 @@
 {
-  "name": "vue-carousel",
+  "name": "empathy-vue-carousel",
   "version": "0.1.0",
-  "private": true,
+  "description": "Vue component of an awesome configurable carousel",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/empathyco/vue-carousel"
+  },
+  "keywords": [
+    "vue",
+    "vue-component",
+    "vue-carousel"
+  ],
+  "homepage": "https://github.com/empathyco/vue-carousel#readme",
   "dependencies": {
     "core-js": "^2.6.5",
     "vue": "^2.6.10",
@@ -33,5 +45,11 @@
     "ts-jest": "^23.0.0",
     "typescript": "^3.4.3",
     "vue-template-compiler": "^2.6.10"
-  }
+  },
+  "peerDependencies": {
+    "vue": "^2.6.10"
+  },
+  "files": [
+    "dist/**/*"
+  ]
 }
