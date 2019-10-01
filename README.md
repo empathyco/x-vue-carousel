@@ -1,34 +1,12 @@
-# empathy-vue-carousel
+# Empathy Vue Carousel
 
-## Project setup
-```
-npm install
-```
+Vue component of an awesome configurable carousel
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Table of Contents
+- [Installation](#installation)
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Installation
 
-### Run your tests
+``` bash
+npm install empathy-vue-carousel
 ```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Run your unit tests
-```
-npm run test:unit
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

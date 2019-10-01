@@ -1,0 +1,26 @@
+/* montserrat-500 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  src: url('fonts/montserrat-v12-latin-500.eot'); /* IE9 Compat Modes */
+  src: url('fonts/montserrat-v12-latin-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('fonts/montserrat-v12-latin-500.woff2') format('woff2'), /* Super Modern Browsers */
+  url('fonts/montserrat-v12-latin-500.woff') format('woff'), /* Modern Browsers */
+  url('fonts/montserrat-v12-latin-500.ttf') format('truetype'); /* Safari, Android, iOS */
+}
+
+body {
+  margin: 50px 0 0;
+  font-family: 'Montserrat', sans-serif;
+  background-color: azure;
+}
+
+h1 {
+  text-align: center;
+}
+
+.eco-carousel {
+  width: 50%;
+  margin: auto;
+}
