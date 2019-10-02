@@ -16,11 +16,16 @@ body {
   background-color: azure;
 }
 
-h1 {
+.empathy-icon {
+  display: block;
+  margin: auto;
+}
+
+.demo-title {
   text-align: center;
 }
 
 .eco-carousel {
-  width: 50%;
+  width: 70%;
   margin: auto;
 }
