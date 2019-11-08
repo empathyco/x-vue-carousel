@@ -2,6 +2,7 @@
   <div class="eco-carousel eco__carousel">
     <Slider :items="items"
             :itemsPerSlide="itemsPerSlide"
+            :itemMarginInPx="itemMarginInPx"
             :withArrows="withArrows"/>
     <Pagination v-if="withPagination"/>
   </div>
@@ -22,6 +23,9 @@
 
     @Prop({ default: 4 })
     itemsPerSlide!: number;
+
+    @Prop({ default: 20 })
+    itemMarginInPx!: number;
 
     @Prop({ default: true })
     withPagination!: boolean;

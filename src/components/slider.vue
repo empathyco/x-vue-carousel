@@ -1,20 +1,23 @@
 <template>
   <section class="eco-carousel-slider eco-carousel__slider"
            ref="ecoCarouselSlider"
-           :style="{ transform: `translate3d(${ displacementByAction }px, 0, 0)` }"
+           :class="{ 'eco-carousel-slider__dragging': dragging }"
+           :style="{ transform: `translate3d(${ sliderPositionInPx }px, 0, 0)` }"
            @mousedown="startDrag($event)"
            @mouseup="stopDrag"
-           @mousemove.prevent="calculateDragPosition($event)">
+           @mousemove.prevent="drag($event)">
     <Item v-for="item in items"
+          class="eco-carousel-slider__item"
           :key="item.id"
           :item="item"
-          :style="{ flex: `1 0 ${ itemWidth }` }"></Item>
+          :style="{ width: itemWidth, 'margin-right': `${ itemMarginInPx }px` }"></Item>
   </section>
 </template>
 
 <script lang="ts">
   import Item from '@/components/item.vue';
   import { Item as ItemModel } from '@/models/item.model';
+  import { SlideDirection } from '@/utils/slide-direction.enum';
   import { Component, Prop, Vue } from 'vue-property-decorator';
 
   @Component({
@@ -28,50 +31,60 @@
     itemsPerSlide!: number;
 
     @Prop({ required: true })
+    itemMarginInPx!: number;
+
+    @Prop({ required: true })
     withArrows!: boolean;
 
-    sliderWidth = 0;
+    slideWidth = 0;
     dragging = false;
 
-    oldXposition = 0;
-    lastXposition = 0;
-    displacement = 0;
-    currentPage = 0;
+    clickXPosition = 0;
+    sliderPositionInPx = 0;
+    currentDisplacementDirection!: SlideDirection;
+
+    currentIndexSlide = 0;
+    maxIndexSlide = 0;
 
     mounted() {
-      this.sliderWidth = (this.$refs.ecoCarouselSlider as Element).clientWidth;
+      this.slideWidth = (this.$refs.ecoCarouselSlider as Element).clientWidth;
+      this.maxIndexSlide = Math.floor(this.items.length / this.itemsPerSlide);
     }
 
     get itemWidth() {
-      return `${ this.sliderWidth / this.itemsPerSlide }px`;
-    }
-
-    get displacementByAction() {
-      return this.dragging
-        ? this.displacement
-        : this.currentPage * this.sliderWidth;
+      return `${ (this.slideWidth / this.itemsPerSlide) - this.itemMarginInPx }px`;
     }
 
     startDrag(event: MouseEvent) {
       this.dragging = true;
-      this.oldXposition = this.lastXposition = event.clientX;
+      this.clickXPosition = event.clientX;
     }
 
     stopDrag() {
       this.dragging = false;
-      if (this.displacement > 0) {
-        this.currentPage++;
-        this.displacement = this.sliderWidth;
-      } else {
-        this.currentPage--;
-        this.displacement = -this.sliderWidth;
+      this.limitCurrentIndexPageAvailable(this.currentDisplacementDirection);
+    }
+
+    drag(event: MouseEvent) {
+      if (this.dragging) {
+        const mouseDisplacementInDraggingInPx = event.clientX - this.clickXPosition;
+        this.sliderPositionInPx = mouseDisplacementInDraggingInPx - (this.slideWidth * this.currentIndexSlide);
+        this.currentDisplacementDirection = mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
       }
     }
 
-    calculateDragPosition(event: MouseEvent) {
-      if (this.dragging) {
-        this.lastXposition = event.clientX;
-        this.displacement = this.lastXposition - this.oldXposition;
+    limitCurrentIndexPageAvailable(slideDirection: SlideDirection) {
+      if (this.currentIndexSlide === 0 && slideDirection === SlideDirection.LEFT) {
+        this.sliderPositionInPx = 0;
+      } else if (this.currentIndexSlide === this.maxIndexSlide && slideDirection === SlideDirection.RIGHT) {
+        this.sliderPositionInPx = -this.slideWidth * this.currentIndexSlide;
+      } else {
+        if (slideDirection === SlideDirection.LEFT) {
+          this.currentIndexSlide--;
+        } else if (slideDirection === SlideDirection.RIGHT) {
+          this.currentIndexSlide++;
+        }
+        this.sliderPositionInPx = -this.slideWidth * this.currentIndexSlide;
       }
     }
   }
@@ -83,7 +96,20 @@
       display: flex;
       flex: 1 1 auto;
       align-items: flex-end;
-      transition: 0s transform;
+      transition: transform 500ms ease-out;
+      will-change: transform;
+
+      &__item {
+        flex: 1 0 auto;
+
+        &:last-child {
+          // margin-right: 0 !important;
+        }
+      }
+
+      &__dragging {
+        transition: none;
+      }
     }
   }
 </style>

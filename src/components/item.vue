@@ -25,5 +25,12 @@
     &__image {
       width: 100%;
     }
+
+    &__description,
+    &__price {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 </style>
