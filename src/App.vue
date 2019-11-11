@@ -1,7 +1,7 @@
 <template>
   <Carousel :items="items"
             :itemsPerSlide="5"
-            :itemMarginInPx="20"
+            :itemMarginRightInPx="15"
             :withArrows="true"/>
 </template>
 
