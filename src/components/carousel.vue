@@ -3,7 +3,8 @@
     <Slider :items="items"
             :itemsPerSlide="itemsPerSlide"
             :itemMarginRightInPx="itemMarginRightInPx"
-            :withArrows="withArrows"/>
+            :withArrows="withArrows"
+            :slidingAnimationTimeInMs="slidingAnimationTimeInMs"/>
     <Pagination v-if="withPagination"/>
   </div>
 </template>
@@ -32,6 +33,9 @@
 
     @Prop({ default: true })
     withArrows!: boolean;
+
+    @Prop({ default: 500 })
+    slidingAnimationTimeInMs!: number;
   }
 </script>
 

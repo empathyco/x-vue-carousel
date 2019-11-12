@@ -2,7 +2,9 @@
   <Carousel :items="items"
             :itemsPerSlide="5"
             :itemMarginRightInPx="15"
-            :withArrows="true"/>
+            :withPagination="true"
+            :withArrows="true"
+            :slidingAnimationTimeInMs="500"/>
 </template>
 
 <script lang="ts">

@@ -1,1 +1,4 @@
-export enum SlideDirection { LEFT, RIGHT }
+export enum SlideDirection {
+  LEFT = 'left',
+  RIGHT = 'right'
+}
