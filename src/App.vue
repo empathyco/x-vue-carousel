@@ -1,6 +1,6 @@
 <template>
   <Carousel :items="items"
-            :itemsPerSlide="5"
+            :itemsPerSlide="itemsPerSlide"
             :itemMarginRightInPx="15"
             :withPagination="true"
             :withArrows="true"
@@ -17,8 +17,27 @@
     components: { Carousel }
   })
   export default class App extends Vue {
+    windowWidth = 0;
+
+    mounted() {
+      this.setWindowWidth();
+      window.addEventListener('resize', () => this.setWindowWidth());
+    }
+
+    beforeDestroy() {
+      window.removeEventListener('resize', () => this.setWindowWidth());
+    }
+
     get items(): ItemModel[] {
       return ItemsData;
+    }
+
+    get itemsPerSlide(): number {
+      return this.windowWidth > 600 ? 5 : 3;
+    }
+
+    setWindowWidth() {
+      this.windowWidth = window.innerWidth;
     }
   }
 </script>

@@ -30,3 +30,10 @@ body {
   margin: auto;
   border: 1px solid dodgerblue;
 }
+
+@media only screen and (max-width: 600px) {
+  .eco-carousel {
+    width: 100%;
+    border: none;
+  }
+}

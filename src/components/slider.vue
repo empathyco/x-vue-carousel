@@ -5,6 +5,7 @@
              :class="sliderDynamicCssClasses"
              :style="sliderDynamicStyles"
              @mousedown.prevent.stop="startDrag($event)"
+             @touchstart.prevent.stop="startDrag($event)"
              @wheel.prevent.stop="scroll($event)">
       <Item v-for="item in items"
             class="eco-carousel-slider__item"
@@ -20,7 +21,7 @@
   import { Item as ItemModel } from '@/models/item.model';
   import { SlideDirection } from '@/utils/slide-direction.enum';
   import { VueCssClasses } from '@/utils/types';
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
   const TIME_BETWEEN_SCROLL_EVENTS = 50;
 
@@ -60,20 +61,16 @@
     timeBetweenScrollEventsInMs = 0;
 
     mounted() {
-      this.slideWrapperWidth = (this.$refs.ecoCarouselSliderWrapper as Element).clientWidth + this.itemMarginRightInPx;
-
-      this.currentSlideFirstIndexItem = 0;
-      this.itemsLastSlide = this.items.length % this.itemsPerSlide || this.itemsPerSlide;
-      this.maxIndexItem = (this.items.length - this.itemsPerSlide >= 0) ? this.items.length - this.itemsPerSlide : 0;
-
-      this.timeBetweenScrollEventsInMs = new Date().getTime();
-
+      this.initSlider();
       this.addEventListeners();
     }
 
     beforeDestroy() {
       window.removeEventListener('mouseup', this.stopDrag);
       window.removeEventListener('mousemove', this.drag);
+
+      window.removeEventListener('touchend', this.stopDrag);
+      window.removeEventListener('touchmove', this.drag);
     }
 
     get itemWidth() {
@@ -102,14 +99,33 @@
       };
     }
 
+    @Watch('itemsPerSlide')
+    onItemsPerSlideChange() {
+      this.initSlider();
+    }
+
+    initSlider() {
+      this.slideWrapperWidth = (this.$refs.ecoCarouselSliderWrapper as Element).clientWidth + this.itemMarginRightInPx;
+      this.currentSliderPositionInPx = 0;
+
+      this.currentSlideFirstIndexItem = 0;
+      this.itemsLastSlide = this.items.length % this.itemsPerSlide || this.itemsPerSlide;
+      this.maxIndexItem = (this.items.length - this.itemsPerSlide >= 0) ? this.items.length - this.itemsPerSlide : 0;
+
+      this.timeBetweenScrollEventsInMs = new Date().getTime();
+    }
+
     addEventListeners() {
       window.addEventListener('mouseup', this.stopDrag);
       window.addEventListener('mousemove', this.drag);
+
+      window.addEventListener('touchend', this.stopDrag);
+      window.addEventListener('touchmove', this.drag);
     }
 
-    startDrag(event: MouseEvent) {
+    startDrag(event: MouseEvent | TouchEvent) {
       this.dragging = true;
-      this.clickXPosition = event.clientX;
+      this.clickXPosition = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
       this.mouseDisplacementInDraggingInPx = 0;
     }
 
@@ -121,9 +137,10 @@
       }
     }
 
-    drag(event: MouseEvent) {
+    drag(event: MouseEvent | TouchEvent) {
       if (this.dragging) {
-        this.mouseDisplacementInDraggingInPx = event.clientX - this.clickXPosition;
+        const xPosition = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+        this.mouseDisplacementInDraggingInPx = xPosition - this.clickXPosition;
         this.currentSliderPositionInPx = this.mouseDisplacementInDraggingInPx + this.baseSliderPositionInPx;
       }
     }
