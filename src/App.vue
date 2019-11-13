@@ -33,7 +33,7 @@
     }
 
     get itemsPerSlide(): number {
-      return this.windowWidth > 600 ? 5 : 3;
+      return this.windowWidth > 600 ? 5 : 2;
     }
 
     setWindowWidth() {
