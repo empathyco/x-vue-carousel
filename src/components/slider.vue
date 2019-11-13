@@ -61,9 +61,10 @@
 
     mounted() {
       this.slideWrapperWidth = (this.$refs.ecoCarouselSliderWrapper as Element).clientWidth + this.itemMarginRightInPx;
+
       this.currentSlideFirstIndexItem = 0;
-      this.itemsLastSlide = this.items.length % this.itemsPerSlide;
-      this.maxIndexItem = this.items.length - this.itemsPerSlide;
+      this.itemsLastSlide = this.items.length % this.itemsPerSlide || this.itemsPerSlide;
+      this.maxIndexItem = (this.items.length - this.itemsPerSlide >= 0) ? this.items.length - this.itemsPerSlide : 0;
 
       this.timeBetweenScrollEventsInMs = new Date().getTime();
 
@@ -138,7 +139,7 @@
         }
         this.currentSliderPositionInPx = this.mouseDisplacementInDraggingInPx + this.baseSliderPositionInPx;
         this.currentDisplacementDirection = this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
-        this.moveSlideOnScroll();
+        this.moveSlideOnScrollAnimation();
       }
       this.timeBetweenScrollEventsInMs = timeNow;
     }
@@ -154,7 +155,7 @@
         : 0;
     }
 
-    moveSlideOnScroll(): void {
+    moveSlideOnScrollAnimation(): void {
       if (this.areSliderLimits()) {
         this.slidingLimit = true;
         setTimeout(() => {
