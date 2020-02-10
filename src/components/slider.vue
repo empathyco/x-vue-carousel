@@ -1,17 +1,26 @@
 <template>
-  <div class="eco-carousel-slider-wrapper eco-carousel-slider__wrapper"
-       ref="ecoCarouselSliderWrapper">
-    <section class="eco-carousel-slider eco-carousel__slider"
-             :class="sliderDynamicCssClasses"
-             :style="sliderDynamicStyles"
-             @mousedown.prevent.stop="startDrag($event)"
-             @touchstart.prevent.stop="startDrag($event)"
-             @wheel.prevent.stop="scroll($event)">
-      <Item v-for="item in items"
-            class="eco-carousel-slider__item"
-            :key="item.id"
-            :item="item"
-            :style="{ width: `${ itemWidthWithoutMargin }px`, 'margin-right': `${ itemMarginRightInPx }px` }"></Item>
+  <div
+    ref="ecoCarouselSliderWrapper"
+    class="eco-carousel-slider-wrapper eco-carousel-slider__wrapper"
+  >
+    <section
+      @touchstart.prevent.stop="startDrag($event)"
+      @wheel.prevent.stop="scroll($event)"
+      @mousedown.prevent.stop="startDrag($event)"
+      class="eco-carousel-slider eco-carousel__slider"
+      :class="sliderDynamicCssClasses"
+      :style="sliderDynamicStyles"
+    >
+      <Item
+        v-for="item in items"
+        :key="item.id"
+        :item="item"
+        class="eco-carousel-slider__item"
+        :style="{
+          width: `${itemWidthWithoutMargin}px`,
+          'margin-right': `${itemMarginRightInPx}px`
+        }"
+      />
     </section>
   </div>
 </template>
@@ -83,7 +92,7 @@
 
     get sliderDynamicCssClasses(): VueCssClasses {
       return [
-        `eco-carousel-slider--${ this.currentDisplacementDirection }`,
+        `eco-carousel-slider--${this.currentDisplacementDirection}`,
         {
           'eco-carousel-slider--dragging': this.dragging,
           'eco-carousel-slider--start': this.currentSlideFirstIndexItem === 0,
@@ -94,8 +103,10 @@
 
     get sliderDynamicStyles(): Partial<CSSStyleDeclaration> {
       return {
-        transform: `translate3d(${ this.currentSliderPositionInPx }px, 0, 0)`,
-        transition: `transform ${ this.slidingLimit ? this.slidingAnimationTimeInMs / 2 : this.slidingAnimationTimeInMs }ms ease-out`
+        transform: `translate3d(${this.currentSliderPositionInPx}px, 0, 0)`,
+        transition: `transform ${
+          this.slidingLimit ? this.slidingAnimationTimeInMs / 2 : this.slidingAnimationTimeInMs
+        }ms ease-out`
       };
     }
 
@@ -105,12 +116,14 @@
     }
 
     initSlider() {
-      this.slideWrapperWidth = (this.$refs.ecoCarouselSliderWrapper as Element).clientWidth + this.itemMarginRightInPx;
+      const wrapper = this.$refs.ecoCarouselSliderWrapper as Element;
+      this.slideWrapperWidth = wrapper.clientWidth + this.itemMarginRightInPx;
       this.currentSliderPositionInPx = 0;
 
       this.currentSlideFirstIndexItem = 0;
       this.itemsLastSlide = this.items.length % this.itemsPerSlide || this.itemsPerSlide;
-      this.maxIndexItem = (this.items.length - this.itemsPerSlide >= 0) ? this.items.length - this.itemsPerSlide : 0;
+      this.maxIndexItem =
+        this.items.length - this.itemsPerSlide >= 0 ? this.items.length - this.itemsPerSlide : 0;
 
       this.timeBetweenScrollEventsInMs = new Date().getTime();
     }
@@ -132,7 +145,8 @@
     stopDrag() {
       if (this.dragging) {
         this.dragging = false;
-        this.currentDisplacementDirection = this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
+        this.currentDisplacementDirection =
+          this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
         this.moveSlide();
       }
     }
@@ -141,7 +155,8 @@
       if (this.dragging) {
         const xPosition = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         this.mouseDisplacementInDraggingInPx = xPosition - this.clickXPosition;
-        this.currentSliderPositionInPx = this.mouseDisplacementInDraggingInPx + this.baseSliderPositionInPx;
+        this.currentSliderPositionInPx =
+          this.mouseDisplacementInDraggingInPx + this.baseSliderPositionInPx;
       }
     }
 
@@ -154,22 +169,31 @@
         } else if (wheel.deltaX < 0 || wheel.deltaY > 0) {
           this.mouseDisplacementInDraggingInPx = this.itemWidth;
         }
-        this.currentSliderPositionInPx = this.mouseDisplacementInDraggingInPx + this.baseSliderPositionInPx;
-        this.currentDisplacementDirection = this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
+        this.currentSliderPositionInPx =
+          this.mouseDisplacementInDraggingInPx + this.baseSliderPositionInPx;
+        this.currentDisplacementDirection =
+          this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
         this.moveSlideOnScrollAnimation();
       }
       this.timeBetweenScrollEventsInMs = timeNow;
     }
 
     areSliderLimits(): boolean {
-      return (this.currentSlideFirstIndexItem === 0 && this.currentDisplacementDirection === SlideDirection.LEFT) ||
-        (this.currentSlideFirstIndexItem === this.maxIndexItem && this.currentDisplacementDirection === SlideDirection.RIGHT);
+      const isLeftSliderLimit: boolean =
+        this.currentSlideFirstIndexItem === 0 &&
+        this.currentDisplacementDirection === SlideDirection.LEFT;
+      const isRightSliderLimit: boolean =
+        this.currentSlideFirstIndexItem === this.maxIndexItem &&
+        this.currentDisplacementDirection === SlideDirection.RIGHT;
+
+      return isLeftSliderLimit || isRightSliderLimit;
     }
 
     setSliderLimit(): void {
-      this.currentSliderPositionInPx = this.currentDisplacementDirection === SlideDirection.RIGHT
-        ? -this.currentSlideFirstIndexItem * this.itemWidth
-        : 0;
+      this.currentSliderPositionInPx =
+        this.currentDisplacementDirection === SlideDirection.RIGHT
+          ? -this.currentSlideFirstIndexItem * this.itemWidth
+          : 0;
     }
 
     moveSlideOnScrollAnimation(): void {
@@ -189,13 +213,15 @@
         this.setSliderLimit();
       } else if (this.mouseDisplacementInDraggingInPx !== 0) {
         if (this.currentDisplacementDirection === SlideDirection.LEFT) {
-          this.currentSlideFirstIndexItem = this.currentSlideFirstIndexItem === this.maxIndexItem
-            ? this.currentSlideFirstIndexItem - this.itemsLastSlide
-            : this.currentSlideFirstIndexItem - this.itemsPerSlide;
+          this.currentSlideFirstIndexItem =
+            this.currentSlideFirstIndexItem === this.maxIndexItem
+              ? this.currentSlideFirstIndexItem - this.itemsLastSlide
+              : this.currentSlideFirstIndexItem - this.itemsPerSlide;
         } else {
-          this.currentSlideFirstIndexItem = (this.currentSlideFirstIndexItem + this.itemsPerSlide) > this.maxIndexItem
-            ? this.currentSlideFirstIndexItem + this.itemsLastSlide
-            : this.currentSlideFirstIndexItem + this.itemsPerSlide;
+          this.currentSlideFirstIndexItem =
+            this.currentSlideFirstIndexItem + this.itemsPerSlide > this.maxIndexItem
+              ? this.currentSlideFirstIndexItem + this.itemsLastSlide
+              : this.currentSlideFirstIndexItem + this.itemsPerSlide;
         }
         this.currentSliderPositionInPx = -this.currentSlideFirstIndexItem * this.itemWidth;
       }

@@ -1,11 +1,13 @@
 <template>
   <div class="eco-carousel eco__carousel">
-    <Slider :items="items"
-            :itemsPerSlide="itemsPerSlide"
-            :itemMarginRightInPx="itemMarginRightInPx"
-            :withArrows="withArrows"
-            :slidingAnimationTimeInMs="slidingAnimationTimeInMs"/>
-    <Pagination v-if="withPagination"/>
+    <Slider
+      :items="items"
+      :itemsPerSlide="itemsPerSlide"
+      :itemMarginRightInPx="itemMarginRightInPx"
+      :withArrows="withArrows"
+      :slidingAnimationTimeInMs="slidingAnimationTimeInMs"
+    />
+    <Pagination v-if="withPagination" />
   </div>
 </template>
 

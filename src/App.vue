@@ -1,17 +1,19 @@
 <template>
-  <Carousel :items="items"
-            :itemsPerSlide="itemsPerSlide"
-            :itemMarginRightInPx="15"
-            :withPagination="true"
-            :withArrows="true"
-            :slidingAnimationTimeInMs="500"/>
+  <Carousel
+    :items="items"
+    :itemsPerSlide="itemsPerSlide"
+    :itemMarginRightInPx="15"
+    :withPagination="true"
+    :withArrows="true"
+    :slidingAnimationTimeInMs="500"
+  />
 </template>
 
 <script lang="ts">
   import Carousel from '@/components/carousel.vue';
-  import { ItemsData } from '@/items-data';
   import { Item as ItemModel } from '@/models/item.model';
   import { Component, Vue } from 'vue-property-decorator';
+  import { ItemsData } from './items-data';
 
   @Component({
     components: { Carousel }
@@ -42,6 +44,4 @@
   }
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

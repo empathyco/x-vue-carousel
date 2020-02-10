@@ -1,7 +1,6 @@
 <template>
   <article class="eco-carousel-item eco-carousel__item">
-    <img class="eco-carousel-item__image"
-         :src="item.image">
+    <img class="eco-carousel-item__image" :src="item.image" :alt="item.description" />
     <p class="eco-carousel-item__description">{{ item.description }}</p>
     <p class="eco-carousel-item__price">{{ item.price }}</p>
   </article>
