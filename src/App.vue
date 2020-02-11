@@ -2,7 +2,7 @@
   <Carousel
     :items="items"
     :itemsPerSlide="itemsPerSlide"
-    :itemMarginRightInPx="15"
+    :itemMarginRightInPx="itemMarginRightInPx"
     :withPagination="true"
     :withArrows="true"
     :slidingAnimationTimeInMs="500"
@@ -19,10 +19,9 @@
     components: { Carousel }
   })
   export default class App extends Vue {
-    windowWidth = 0;
+    windowWidth = window.innerWidth;
 
     mounted() {
-      this.setWindowWidth();
       window.addEventListener('resize', () => this.setWindowWidth());
     }
 
@@ -35,7 +34,20 @@
     }
 
     get itemsPerSlide(): number {
-      return this.windowWidth > 600 ? 5 : 2;
+      if (this.windowWidth >= 1600) {
+        return 7;
+      }
+      if (this.windowWidth < 1600 && this.windowWidth >= 980) {
+        return 5;
+      }
+      if (this.windowWidth < 980 && this.windowWidth >= 600) {
+        return 3;
+      }
+      return 2;
+    }
+
+    get itemMarginRightInPx(): number {
+      return this.windowWidth >= 980 ? 20 : 10;
     }
 
     setWindowWidth() {
