@@ -1,14 +1,15 @@
+import { SlideDirection } from '@/utils/slide-direction.enum';
 <template>
   <div
     ref="ecoCarouselSliderWrapper"
     class="eco-carousel-slider-wrapper eco-carousel-slider__wrapper"
+    :class="sliderDynamicCssClasses"
   >
     <section
       @touchstart.prevent.stop="startDrag($event)"
       @mousedown.prevent.stop="startDrag($event)"
       @wheel.prevent.stop="scroll($event)"
       class="eco-carousel-slider eco-carousel__slider"
-      :class="sliderDynamicCssClasses"
       :style="[sliderTranslationStyle, sliderTransitionStyle]"
     >
       <Item
@@ -22,10 +23,27 @@
         }"
       />
     </section>
+    <button
+      v-if="withArrows"
+      @click="clickSlideButton(slideDirections.LEFT)"
+      class="eco-carousel-slider-left-button eco-carousel-slider_left-button"
+      :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
+    >
+      <ChevronIcon class="eco-carousel-slider-left-button_arrow-icon left-arrow-icon" />
+    </button>
+    <button
+      v-if="withArrows"
+      @click="clickSlideButton(slideDirections.RIGHT)"
+      class="eco-carousel-slider-right-button eco-carousel-slider_right-button"
+      :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
+    >
+      <ChevronIcon class="eco-carousel-slider-right-button_arrow-icon right-arrow-icon" />
+    </button>
   </div>
 </template>
 
 <script lang="ts">
+  import ChevronIcon from '@/components/icons/chevron.vue';
   import Item from '@/components/item.vue';
   import { Item as ItemModel } from '@/models/item.model';
   import { SlideDirection } from '@/utils/slide-direction.enum';
@@ -35,7 +53,7 @@
   const TIME_BETWEEN_SCROLL_EVENTS = 50;
 
   @Component({
-    components: { Item }
+    components: { Item, ChevronIcon }
   })
   export default class Slider extends Vue {
     @Prop({ required: true })
@@ -53,12 +71,15 @@
     @Prop({ required: true })
     slidingAnimationTimeInMs!: number;
 
+    slideDirections = SlideDirection; // Just to use it inside the template
+
     sliderViewportWidth = 0; // Width per slide. Slider viewport width
-    isStartingDragging = false; // The slide is dragging
     isSlidingLimitForAnimation = false; // Current slide is in the limit (right or left) and it is retrieving
 
+    isStartingDragging = false; // The slide is dragging
     clickXPosition = 0; // Click X position of the mouse or touch
     mouseDisplacementInDraggingInPx = 0; // Mouse displacement in dragging regarding X position click
+
     baseSliderPositionInPx = 0; // Slider position in pixels (number of slides in pixels)
     currentSliderPositionInPx = 0; // Current position in pixels (depens on the mouse displacement)
     currentDisplacementDirection = SlideDirection.LEFT; // Displacement direction
@@ -94,8 +115,8 @@
           the transition animation in a second click while it is animating */
           'eco-carousel-slider--dragging':
             this.isStartingDragging && this.mouseDisplacementInDraggingInPx !== 0,
-          'eco-carousel-slider--start': this.firstIndexItemCurrentSlide === 0,
-          'eco-carousel-slider--end': this.firstIndexItemCurrentSlide === this.maxFirstIndexItem
+          'eco-carousel-slider--start': this.isFirstSlide,
+          'eco-carousel-slider--end': this.isLastSlide
         }
       ];
     }
@@ -110,8 +131,16 @@
           this.isSlidingLimitForAnimation
             ? this.slidingAnimationTimeInMs / 2
             : this.slidingAnimationTimeInMs
-        }ms ease-out`
+        }ms ease-out 0s`
       };
+    }
+
+    get isFirstSlide(): boolean {
+      return this.firstIndexItemCurrentSlide === 0;
+    }
+
+    get isLastSlide(): boolean {
+      return this.firstIndexItemCurrentSlide === this.maxFirstIndexItem;
     }
 
     @Watch('itemsPerSlide', { immediate: false })
@@ -165,12 +194,13 @@
     }
 
     stopDrag() {
-      if (this.isStartingDragging) {
-        this.isStartingDragging = false;
+      if (this.isStartingDragging && this.mouseDisplacementInDraggingInPx !== 0) {
         this.currentDisplacementDirection =
           this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
         this.moveSlide();
+        this.mouseDisplacementInDraggingInPx = 0;
       }
+      this.isStartingDragging = false;
     }
 
     drag(event: MouseEvent | TouchEvent) {
@@ -185,29 +215,31 @@
     scroll(wheel: WheelEvent) {
       const timeNow = new Date().getTime();
       if (timeNow - this.timeBetweenScrollEventsInMs > TIME_BETWEEN_SCROLL_EVENTS) {
+        let displacement = 0;
         if (wheel.deltaX > 0 || wheel.deltaY < 0) {
-          this.mouseDisplacementInDraggingInPx = -this.itemWidth;
+          displacement = -this.itemWidth;
+          this.currentDisplacementDirection = SlideDirection.RIGHT;
         } else if (wheel.deltaX < 0 || wheel.deltaY > 0) {
-          this.mouseDisplacementInDraggingInPx = this.itemWidth;
+          displacement = this.itemWidth;
+          this.currentDisplacementDirection = SlideDirection.LEFT;
         }
 
-        this.currentSliderPositionInPx =
-          this.mouseDisplacementInDraggingInPx + this.baseSliderPositionInPx;
-        this.currentDisplacementDirection =
-          this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
-
+        this.currentSliderPositionInPx = displacement + this.baseSliderPositionInPx;
         this.moveSlideOnScrollAnimation();
       }
       this.timeBetweenScrollEventsInMs = timeNow;
     }
 
+    clickSlideButton(slideDirection: SlideDirection): void {
+      this.currentDisplacementDirection = slideDirection;
+      this.moveSlide();
+    }
+
     areSliderLimits(): boolean {
       const isLeftSliderLimit: boolean =
-        this.firstIndexItemCurrentSlide === 0 &&
-        this.currentDisplacementDirection === SlideDirection.LEFT;
+        this.isFirstSlide && this.currentDisplacementDirection === SlideDirection.LEFT;
       const isRightSliderLimit: boolean =
-        this.firstIndexItemCurrentSlide === this.maxFirstIndexItem &&
-        this.currentDisplacementDirection === SlideDirection.RIGHT;
+        this.isLastSlide && this.currentDisplacementDirection === SlideDirection.RIGHT;
 
       return isLeftSliderLimit || isRightSliderLimit;
     }
@@ -234,7 +266,7 @@
     moveSlide(): void {
       if (this.areSliderLimits()) {
         this.setSliderLimit();
-      } else if (this.mouseDisplacementInDraggingInPx !== 0) {
+      } else {
         if (this.currentDisplacementDirection === SlideDirection.LEFT) {
           this.firstIndexItemCurrentSlide =
             this.firstIndexItemCurrentSlide === this.maxFirstIndexItem
@@ -249,25 +281,72 @@
         this.currentSliderPositionInPx = -this.firstIndexItemCurrentSlide * this.itemWidth;
       }
       this.baseSliderPositionInPx = this.currentSliderPositionInPx;
-      this.mouseDisplacementInDraggingInPx = 0;
     }
   }
 </script>
 
 <style lang="scss">
-  .eco-carousel {
-    &-slider {
-      display: inline-flex;
-      flex: 1 1 auto;
-      align-items: flex-end;
-      will-change: transform;
+  $button-size: 40px;
+  $button-margin: 5px;
 
-      &__item {
-        flex: 1 0 auto;
-      }
+  .eco-carousel-slider {
+    display: inline-flex;
+    flex: 1 1 auto;
+    align-items: flex-end;
+    will-change: transform;
 
-      &--dragging {
+    &__wrapper {
+      position: relative;
+    }
+
+    &__item {
+      flex: 1 0 auto;
+    }
+
+    &--dragging {
+      .eco-carousel-slider {
         transition: none !important;
+      }
+    }
+
+    &-left-button,
+    &-right-button {
+      position: absolute;
+      top: calc(50% - #{$button-size / 2});
+      width: $button-size;
+      height: $button-size;
+      opacity: 1;
+      background: white;
+      border-radius: 50%;
+      border: none;
+      box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+      outline: none;
+      cursor: pointer;
+
+      &:hover {
+        pointer-events: all;
+      }
+    }
+
+    &-left-button {
+      left: $button-margin;
+    }
+
+    &-right-button {
+      right: $button-margin;
+    }
+
+    &--start {
+      .eco-carousel-slider_left-button {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+
+    &--end {
+      .eco-carousel-slider_right-button {
+        opacity: 0;
+        pointer-events: none;
       }
     }
   }
