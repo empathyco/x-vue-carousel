@@ -1,22 +1,22 @@
 import { SlideDirection } from '@/utils/slide-direction.enum';
 <template>
   <div
-    ref="ecoCarouselSliderWrapper"
-    class="eco-carousel-slider-wrapper eco-carousel-slider__wrapper"
+    ref="ecoCarouselSlider"
+    class="eco-carousel-slider eco-carousel__slider"
     :class="sliderDynamicCssClasses"
   >
     <section
       @touchstart.prevent.stop="startDrag($event)"
       @mousedown.prevent.stop="startDrag($event)"
       @wheel.prevent.stop="scroll($event)"
-      class="eco-carousel-slider eco-carousel__slider"
+      class="eco-carousel-slider-content eco-carousel-slider__content"
       :style="[sliderTranslationStyle, sliderTransitionStyle]"
     >
       <Item
         v-for="item in items"
         :key="item.id"
         :item="item"
-        class="eco-carousel-slider__item"
+        class="eco-carousel-slider-content__item"
         :style="{
           width: `${itemWidthWithoutMargin}px`,
           'margin-right': `${itemMarginRightInPx}px`
@@ -26,18 +26,18 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
     <button
       v-if="withArrows"
       @click="clickSlideButton(slideDirections.LEFT)"
-      class="eco-carousel-slider-left-button eco-carousel-slider_left-button"
+      class="eco-carousel-slider-left-button eco-carousel-slider__left-button"
       :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
     >
-      <ChevronIcon class="eco-carousel-slider-left-button_arrow-icon left-arrow-icon" />
+      <ChevronIcon class="eco-carousel-slider-left-button__arrow-icon left-arrow-icon" />
     </button>
     <button
       v-if="withArrows"
       @click="clickSlideButton(slideDirections.RIGHT)"
-      class="eco-carousel-slider-right-button eco-carousel-slider_right-button"
+      class="eco-carousel-slider-right-button eco-carousel-slider__right-button"
       :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
     >
-      <ChevronIcon class="eco-carousel-slider-right-button_arrow-icon right-arrow-icon" />
+      <ChevronIcon class="eco-carousel-slider-right-button__arrow-icon right-arrow-icon" />
     </button>
   </div>
 </template>
@@ -179,8 +179,8 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
     }
 
     initSliderView() {
-      const sliderWrapper = this.$refs.ecoCarouselSliderWrapper as HTMLDivElement;
-      this.sliderViewportWidth = sliderWrapper.clientWidth + this.itemMarginRightInPx;
+      const slider = this.$refs.ecoCarouselSlider as HTMLDivElement;
+      this.sliderViewportWidth = slider.clientWidth + this.itemMarginRightInPx;
 
       this.currentSliderPositionInPx = 0;
       this.firstIndexItemCurrentSlide = 0;
@@ -290,27 +290,21 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
   $button-margin: 5px;
 
   .eco-carousel-slider {
-    display: inline-flex;
-    flex: 1 1 auto;
-    align-items: flex-end;
-    will-change: transform;
+    position: relative;
 
-    &__wrapper {
-      position: relative;
-    }
+    &-content {
+      display: inline-flex;
+      flex: 1 1 auto;
+      align-items: flex-end;
+      will-change: transform;
 
-    &__item {
-      flex: 1 0 auto;
-    }
-
-    &--dragging {
-      .eco-carousel-slider {
-        transition: none !important;
+      &__item {
+        flex: 1 0 auto;
       }
     }
 
-    &-left-button,
-    &-right-button {
+    &__left-button,
+    &__right-button {
       position: absolute;
       top: calc(50% - #{$button-size / 2});
       width: $button-size;
@@ -328,26 +322,26 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
       }
     }
 
-    &-left-button {
+    &__left-button {
       left: $button-margin;
     }
 
-    &-right-button {
+    &__right-button {
       right: $button-margin;
     }
 
-    &--start {
-      .eco-carousel-slider_left-button {
-        opacity: 0;
-        pointer-events: none;
-      }
+    &--dragging .eco-carousel-slider__content {
+      transition: none !important;
     }
 
-    &--end {
-      .eco-carousel-slider_right-button {
-        opacity: 0;
-        pointer-events: none;
-      }
+    &--start .eco-carousel-slider__left-button {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &--end .eco-carousel-slider__right-button {
+      opacity: 0;
+      pointer-events: none;
     }
   }
 </style>
