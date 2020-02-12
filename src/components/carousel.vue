@@ -6,8 +6,13 @@
       :itemMarginRightInPx="itemMarginRightInPx"
       :withArrows="withArrows"
       :slidingAnimationTimeInMs="slidingAnimationTimeInMs"
+      :activeSlideIndex="activeSlideIndex"
     />
-    <Pagination v-if="withPagination" />
+    <Pagination
+      v-if="withPagination"
+      :slidesLength="slidesLength"
+      :activeSlideIndex="activeSlideIndex"
+    />
   </div>
 </template>
 
@@ -15,6 +20,7 @@
   import Pagination from '@/components/pagination.vue';
   import Slider from '@/components/slider.vue';
   import { Item as ItemModel } from '@/models/item.model';
+  import { EVENTS } from '@/utils/events.const';
   import { Component, Prop, Vue } from 'vue-property-decorator';
 
   @Component({
@@ -38,6 +44,27 @@
 
     @Prop({ default: 500 })
     slidingAnimationTimeInMs!: number;
+
+    activeSlideIndex = 0;
+
+    mounted() {
+      this.$on(EVENTS.DisplaceSliderTo, (slideIndexTo: number) => {
+        this.activeSlideIndex = slideIndexTo;
+      });
+      window.addEventListener('resize', this.initCarousel);
+    }
+
+    beforeDestroy() {
+      window.removeEventListener('resize', this.initCarousel);
+    }
+
+    get slidesLength(): number {
+      return Math.ceil(this.items.length / this.itemsPerSlide);
+    }
+
+    initCarousel(): void {
+      this.activeSlideIndex = 0;
+    }
   }
 </script>
 

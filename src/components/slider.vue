@@ -25,7 +25,7 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
     </section>
     <button
       v-if="withArrows"
-      @click="clickSlideButton(slideDirections.LEFT)"
+      @click="moveSlide(slideDirections.LEFT)"
       class="eco-carousel-slider-left-button eco-carousel-slider__left-button"
       :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
     >
@@ -33,7 +33,7 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
     </button>
     <button
       v-if="withArrows"
-      @click="clickSlideButton(slideDirections.RIGHT)"
+      @click="moveSlide(slideDirections.RIGHT)"
       class="eco-carousel-slider-right-button eco-carousel-slider__right-button"
       :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
     >
@@ -46,6 +46,7 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
   import ChevronIcon from '@/components/icons/chevron.vue';
   import Item from '@/components/item.vue';
   import { Item as ItemModel } from '@/models/item.model';
+  import { EVENTS } from '@/utils/events.const';
   import { SlideDirection } from '@/utils/slide-direction.enum';
   import { VueCssClasses } from '@/utils/types';
   import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
@@ -71,6 +72,9 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
     @Prop({ required: true })
     slidingAnimationTimeInMs!: number;
 
+    @Prop({ required: true })
+    activeSlideIndex!: number;
+
     slideDirections = SlideDirection; // Just to use it inside the template
 
     sliderViewportWidth = 0; // Width per slide. Slider viewport width
@@ -85,7 +89,6 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
     currentDisplacementDirection = SlideDirection.LEFT; // Displacement direction
 
     firstIndexItemCurrentSlide = 0; // Index of the first item of current slide in the viewport of the slider
-    itemsLastSlide = 0; // Items of the last slide
     maxFirstIndexItem = 0; // Index of the first item of the last slide of the slider
 
     timeBetweenScrollEventsInMs = 0; // Time between scroll events to apply a new one
@@ -149,6 +152,20 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
       this.initSlider();
     }
 
+    @Watch('activeSlideIndex', { immediate: false })
+    onActiveSlideIndexChange(newActiveSlideIndex: number, oldActiveSlideIndex: number) {
+      this.currentDisplacementDirection =
+        newActiveSlideIndex < oldActiveSlideIndex ? SlideDirection.LEFT : SlideDirection.RIGHT;
+
+      this.firstIndexItemCurrentSlide =
+        newActiveSlideIndex === Math.floor(this.items.length / this.itemsPerSlide)
+          ? this.maxFirstIndexItem
+          : newActiveSlideIndex * this.itemsPerSlide;
+
+      this.currentSliderPositionInPx = -this.firstIndexItemCurrentSlide * this.itemWidth;
+      this.baseSliderPositionInPx = this.currentSliderPositionInPx;
+    }
+
     addEventListeners() {
       window.addEventListener('mouseup', this.stopDrag);
       window.addEventListener('mousemove', this.drag);
@@ -172,10 +189,8 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
     initSlider() {
       this.initSliderView();
 
-      this.itemsLastSlide = this.items.length % this.itemsPerSlide || this.itemsPerSlide;
       this.maxFirstIndexItem =
         this.items.length - this.itemsPerSlide >= 0 ? this.items.length - this.itemsPerSlide : 0;
-
       this.timeBetweenScrollEventsInMs = new Date().getTime();
     }
 
@@ -196,9 +211,9 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
 
     stopDrag() {
       if (this.isStartingDragging && this.mouseDisplacementInDraggingInPx !== 0) {
-        this.currentDisplacementDirection =
+        const displacementDirection =
           this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
-        this.moveSlide();
+        this.moveSlide(displacementDirection);
         this.mouseDisplacementInDraggingInPx = 0;
       }
       this.isStartingDragging = false;
@@ -216,31 +231,22 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
     scroll(wheel: WheelEvent) {
       const timeNow = new Date().getTime();
       if (timeNow - this.timeBetweenScrollEventsInMs > TIME_BETWEEN_SCROLL_EVENTS) {
-        let displacement = 0;
         if (wheel.deltaX > 0 || wheel.deltaY < 0) {
-          displacement = -this.itemWidth;
-          this.currentDisplacementDirection = SlideDirection.RIGHT;
+          this.currentSliderPositionInPx = -this.itemWidth + this.baseSliderPositionInPx;
+          this.moveSlideOnScrollAnimation(SlideDirection.RIGHT);
         } else if (wheel.deltaX < 0 || wheel.deltaY > 0) {
-          displacement = this.itemWidth;
-          this.currentDisplacementDirection = SlideDirection.LEFT;
+          this.currentSliderPositionInPx = this.itemWidth + this.baseSliderPositionInPx;
+          this.moveSlideOnScrollAnimation(SlideDirection.LEFT);
         }
-
-        this.currentSliderPositionInPx = displacement + this.baseSliderPositionInPx;
-        this.moveSlideOnScrollAnimation();
       }
       this.timeBetweenScrollEventsInMs = timeNow;
     }
 
-    clickSlideButton(slideDirection: SlideDirection): void {
-      this.currentDisplacementDirection = slideDirection;
-      this.moveSlide();
-    }
-
-    areSliderLimits(): boolean {
+    areSliderLimits(displacementDirection: SlideDirection): boolean {
       const isLeftSliderLimit: boolean =
-        this.isFirstSlide && this.currentDisplacementDirection === SlideDirection.LEFT;
+        this.isFirstSlide && displacementDirection === SlideDirection.LEFT;
       const isRightSliderLimit: boolean =
-        this.isLastSlide && this.currentDisplacementDirection === SlideDirection.RIGHT;
+        this.isLastSlide && displacementDirection === SlideDirection.RIGHT;
 
       return isLeftSliderLimit || isRightSliderLimit;
     }
@@ -250,38 +256,36 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
         this.currentDisplacementDirection === SlideDirection.RIGHT
           ? -this.firstIndexItemCurrentSlide * this.itemWidth
           : 0;
+      this.baseSliderPositionInPx = this.currentSliderPositionInPx;
     }
 
-    moveSlideOnScrollAnimation(): void {
-      if (this.areSliderLimits()) {
+    moveSlideOnScrollAnimation(displacementDirection: SlideDirection): void {
+      if (this.areSliderLimits(displacementDirection)) {
         this.isSlidingLimitForAnimation = true;
         setTimeout(() => {
           this.isSlidingLimitForAnimation = false;
-          this.moveSlide();
+          this.moveSlide(displacementDirection);
         }, this.slidingAnimationTimeInMs / 2);
       } else {
-        this.moveSlide();
+        this.moveSlide(displacementDirection);
       }
     }
 
-    moveSlide(): void {
-      if (this.areSliderLimits()) {
+    moveSlide(displacementDirection: SlideDirection): void {
+      if (this.areSliderLimits(displacementDirection)) {
         this.setSliderLimit();
       } else {
-        if (this.currentDisplacementDirection === SlideDirection.LEFT) {
-          this.firstIndexItemCurrentSlide =
-            this.firstIndexItemCurrentSlide === this.maxFirstIndexItem
-              ? this.firstIndexItemCurrentSlide - this.itemsLastSlide
-              : this.firstIndexItemCurrentSlide - this.itemsPerSlide;
-        } else {
-          this.firstIndexItemCurrentSlide =
-            this.firstIndexItemCurrentSlide + this.itemsPerSlide > this.maxFirstIndexItem
-              ? this.firstIndexItemCurrentSlide + this.itemsLastSlide
-              : this.firstIndexItemCurrentSlide + this.itemsPerSlide;
-        }
-        this.currentSliderPositionInPx = -this.firstIndexItemCurrentSlide * this.itemWidth;
+        const slideIndexTo =
+          displacementDirection === SlideDirection.RIGHT
+            ? this.activeSlideIndex + 1
+            : this.activeSlideIndex - 1;
+        this.emitDisplaceSliderTo(slideIndexTo);
       }
-      this.baseSliderPositionInPx = this.currentSliderPositionInPx;
+    }
+
+    emitDisplaceSliderTo(slideIndexTo: number): void {
+      // Event will be emitted to Carousel Component
+      this.$parent.$emit(EVENTS.DisplaceSliderTo, slideIndexTo);
     }
   }
 </script>
