@@ -4,7 +4,7 @@
     :itemsPerSlide="itemsPerSlide"
     :itemMarginRightInPx="itemMarginRightInPx"
     :withPagination="true"
-    :withArrows="true"
+    :withArrows="withArrows"
     :slidingAnimationTimeInMs="500"
   />
 </template>
@@ -48,6 +48,10 @@
 
     get itemMarginRightInPx(): number {
       return this.windowWidth >= 980 ? 20 : 10;
+    }
+
+    get withArrows(): boolean {
+      return this.windowWidth >= 980;
     }
 
     setWindowWidth() {

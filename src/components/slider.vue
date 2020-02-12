@@ -7,7 +7,7 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
   >
     <section
       @touchstart.prevent.stop="startDrag($event)"
-      @mousedown.prevent.stop="startDrag($event)"
+      @mousedown.left.prevent.stop="startDrag($event)"
       @wheel.prevent.stop="scroll($event)"
       class="eco-carousel-slider-content eco-carousel-slider__content"
       :style="[sliderTranslationStyle, sliderTransitionStyle]"
