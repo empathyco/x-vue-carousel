@@ -115,8 +115,9 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
           the transition animation in a second click while it is animating */
           'eco-carousel-slider--dragging':
             this.isStartingDragging && this.mouseDisplacementInDraggingInPx !== 0,
-          'eco-carousel-slider--start': this.isFirstSlide,
-          'eco-carousel-slider--end': this.isLastSlide
+          'eco-carousel-slider--grabbing': this.isStartingDragging,
+          'eco-carousel-slider--at-start': this.isFirstSlide,
+          'eco-carousel-slider--at-end': this.isLastSlide
         }
       ];
     }
@@ -297,6 +298,7 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
       flex: 1 1 auto;
       align-items: flex-end;
       will-change: transform;
+      cursor: grab;
 
       &__item {
         flex: 1 0 auto;
@@ -334,12 +336,16 @@ import { SlideDirection } from '@/utils/slide-direction.enum';
       transition: none !important;
     }
 
-    &--start .eco-carousel-slider__left-button {
+    &--grabbing .eco-carousel-slider__content {
+      cursor: grabbing;
+    }
+
+    &--at-start .eco-carousel-slider__left-button {
       opacity: 0;
       pointer-events: none;
     }
 
-    &--end .eco-carousel-slider__right-button {
+    &--at-end .eco-carousel-slider__right-button {
       opacity: 0;
       pointer-events: none;
     }
