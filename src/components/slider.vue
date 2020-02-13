@@ -1,4 +1,3 @@
-import { SlideDirection } from '@/utils/slide-direction.enum';
 <template>
   <div
     ref="ecoCarouselSlider"
