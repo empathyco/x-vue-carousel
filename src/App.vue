@@ -21,19 +21,19 @@
   export default class App extends Vue {
     windowWidth = window.innerWidth;
 
-    mounted() {
+    mounted(): void {
       window.addEventListener('resize', () => this.setWindowWidth());
     }
 
-    beforeDestroy() {
+    beforeDestroy(): void {
       window.removeEventListener('resize', () => this.setWindowWidth());
     }
 
-    get items(): ItemModel[] {
+    protected get items(): ItemModel[] {
       return ItemsData;
     }
 
-    get itemsPerSlide(): number {
+    protected get itemsPerSlide(): number {
       if (this.windowWidth >= 1600) {
         return 7;
       }
@@ -46,15 +46,15 @@
       return 2;
     }
 
-    get itemMarginRightInPx(): number {
+    protected get itemMarginRightInPx(): number {
       return this.windowWidth >= 980 ? 20 : 10;
     }
 
-    get withArrows(): boolean {
+    protected get withArrows(): boolean {
       return this.windowWidth >= 980;
     }
 
-    setWindowWidth() {
+    setWindowWidth(): void {
       this.windowWidth = window.innerWidth;
     }
   }

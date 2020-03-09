@@ -92,24 +92,24 @@
 
     timeBetweenScrollEventsInMs = 0; // Time between scroll events to apply a new one
 
-    mounted() {
+    mounted(): void {
       this.initSlider();
       this.addEventListeners();
     }
 
-    beforeDestroy() {
+    beforeDestroy(): void {
       this.removeEventListeners();
     }
 
-    get itemWidth() {
+    protected get itemWidth(): number {
       return this.sliderViewportWidth / this.itemsPerSlide;
     }
 
-    get itemWidthWithoutMargin() {
+    protected get itemWidthWithoutMargin(): number {
       return this.itemWidth - this.itemMarginRightInPx;
     }
 
-    get sliderDynamicCssClasses(): VueCssClasses {
+    protected get sliderDynamicCssClasses(): VueCssClasses {
       return [
         `eco-carousel-slider--${this.currentDisplacementDirection}`,
         {
@@ -124,11 +124,11 @@
       ];
     }
 
-    get sliderTranslationStyle(): Partial<CSSStyleDeclaration> {
+    protected get sliderTranslationStyle(): Partial<CSSStyleDeclaration> {
       return { transform: `translate3d(${this.currentSliderPositionInPx}px, 0, 0)` };
     }
 
-    get sliderTransitionStyle(): Partial<CSSStyleDeclaration> {
+    protected get sliderTransitionStyle(): Partial<CSSStyleDeclaration> {
       return {
         transition: `transform ${
           this.isSlidingLimitForAnimation
@@ -138,21 +138,21 @@
       };
     }
 
-    get isFirstSlide(): boolean {
+    protected get isFirstSlide(): boolean {
       return this.firstIndexItemCurrentSlide === 0;
     }
 
-    get isLastSlide(): boolean {
+    protected get isLastSlide(): boolean {
       return this.firstIndexItemCurrentSlide === this.maxFirstIndexItem;
     }
 
     @Watch('itemsPerSlide', { immediate: false })
-    onItemsPerSlideChange() {
+    onItemsPerSlideChange(): void {
       this.initSlider();
     }
 
     @Watch('activeSlideIndex', { immediate: false })
-    onActiveSlideIndexChange(newActiveSlideIndex: number, oldActiveSlideIndex: number) {
+    onActiveSlideIndexChange(newActiveSlideIndex: number, oldActiveSlideIndex: number): void {
       this.currentDisplacementDirection =
         newActiveSlideIndex < oldActiveSlideIndex ? SlideDirection.LEFT : SlideDirection.RIGHT;
 
@@ -165,27 +165,27 @@
       this.baseSliderPositionInPx = this.currentSliderPositionInPx;
     }
 
-    addEventListeners() {
-      window.addEventListener('mouseup', this.stopDrag);
-      window.addEventListener('mousemove', this.drag);
+    addEventListeners(): void {
+      window.addEventListener('mouseup', () => this.stopDrag());
+      window.addEventListener('mousemove', (event: MouseEvent) => this.drag(event));
 
-      window.addEventListener('touchend', this.stopDrag);
-      window.addEventListener('touchmove', this.drag);
+      window.addEventListener('touchend', () => this.stopDrag());
+      window.addEventListener('touchmove', (event: TouchEvent) => this.drag(event));
 
-      window.addEventListener('resize', this.initSliderView);
+      window.addEventListener('resize', () => this.initSliderView());
     }
 
-    removeEventListeners() {
-      window.removeEventListener('mouseup', this.stopDrag);
-      window.removeEventListener('mousemove', this.drag);
+    removeEventListeners(): void {
+      window.removeEventListener('mouseup', () => this.stopDrag());
+      window.removeEventListener('mousemove', (event: MouseEvent) => this.drag(event));
 
-      window.removeEventListener('touchend', this.stopDrag);
-      window.removeEventListener('touchmove', this.drag);
+      window.removeEventListener('touchend', () => this.stopDrag());
+      window.removeEventListener('touchmove', (event: TouchEvent) => this.drag(event));
 
-      window.removeEventListener('resize', this.initSliderView);
+      window.removeEventListener('resize', () => this.initSliderView());
     }
 
-    initSlider() {
+    initSlider(): void {
       this.initSliderView();
 
       this.maxFirstIndexItem =
@@ -193,7 +193,7 @@
       this.timeBetweenScrollEventsInMs = new Date().getTime();
     }
 
-    initSliderView() {
+    initSliderView(): void {
       const slider = this.$refs.ecoCarouselSlider as HTMLDivElement;
       this.sliderViewportWidth = slider.clientWidth + this.itemMarginRightInPx;
 
@@ -203,12 +203,12 @@
       this.baseSliderPositionInPx = 0;
     }
 
-    startDrag(event: MouseEvent | TouchEvent) {
+    startDrag(event: MouseEvent | TouchEvent): void {
       this.isStartingDragging = true;
       this.clickXPosition = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
     }
 
-    stopDrag() {
+    stopDrag(): void {
       if (this.isStartingDragging && this.mouseDisplacementInDraggingInPx !== 0) {
         const displacementDirection =
           this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
@@ -218,7 +218,7 @@
       this.isStartingDragging = false;
     }
 
-    drag(event: MouseEvent | TouchEvent) {
+    drag(event: MouseEvent | TouchEvent): void {
       if (this.isStartingDragging) {
         const xPosition = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         this.mouseDisplacementInDraggingInPx = xPosition - this.clickXPosition;
@@ -227,7 +227,7 @@
       }
     }
 
-    scroll(wheel: WheelEvent) {
+    scroll(wheel: WheelEvent): void {
       const timeNow = new Date().getTime();
       if (timeNow - this.timeBetweenScrollEventsInMs > TIME_BETWEEN_SCROLL_EVENTS) {
         if (wheel.deltaX > 0 || wheel.deltaY < 0) {

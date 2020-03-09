@@ -47,18 +47,18 @@
 
     activeSlideIndex = 0;
 
-    mounted() {
+    mounted(): void {
       this.$on(EVENTS.DisplaceSliderTo, (slideIndexTo: number) => {
         this.activeSlideIndex = slideIndexTo;
       });
-      window.addEventListener('resize', this.initCarousel);
+      window.addEventListener('resize', () => this.initCarousel());
     }
 
-    beforeDestroy() {
-      window.removeEventListener('resize', this.initCarousel);
+    beforeDestroy(): void {
+      window.removeEventListener('resize', () => this.initCarousel());
     }
 
-    get slidesLength(): number {
+    protected get slidesLength(): number {
       return Math.ceil(this.items.length / this.itemsPerSlide);
     }
 

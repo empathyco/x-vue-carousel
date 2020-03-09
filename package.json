@@ -9,7 +9,9 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit",
-    "release": "standard-version"
+    "commit": "git-cz",
+    "release": "standard-version --no-verify",
+    "release:alpha": "standard-version --no-verify --prerelease alpha"
   },
   "repository": {
     "type": "git",
@@ -29,10 +31,11 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.22",
-    "@typescript-eslint/parser": "^2.19.0",
+    "@typescript-eslint/eslint-plugin": "~2.22.0",
+    "@typescript-eslint/parser": "~2.22.0",
     "@vue/cli-plugin-babel": "^4.0.5",
-    "@vue/cli-plugin-eslint": "^4.0.5",
-    "@vue/cli-plugin-typescript": "^4.0.5",
+    "@vue/cli-plugin-eslint": "~4.1.0",
+    "@vue/cli-plugin-typescript": "~4.1.0",
     "@vue/cli-plugin-unit-jest": "^4.0.5",
     "@vue/cli-service": "^4.0.5",
     "@vue/eslint-config-standard": "^4.0.0",
@@ -41,8 +44,11 @@
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
+    "commitizen": "~4.0.3",
+    "cz-conventional-changelog": "~3.1.0",
     "eslint": "^6.6.0",
     "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-jest": "~23.7.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^5.0.0",
     "lint-staged": "^10.0.7",
@@ -61,12 +67,16 @@
     "dist/**/*"
   ],
   "gitHooks": {
-    "pre-commit": "lint-staged",
-    "pre-push": "vue-cli-service test:unit"
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "./src/**/*.{vue,js,jsx,ts,tsx}": [
       "vue-cli-service lint"
     ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
