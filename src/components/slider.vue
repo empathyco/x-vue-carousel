@@ -72,12 +72,15 @@
     slidingAnimationTimeInMs!: number;
 
     @Prop({ required: true })
+    minDraggingDisplacement!: number;
+
+    @Prop({ required: true })
     activeSlideIndex!: number;
 
     slideDirections = SlideDirection; // Just to use it inside the template
 
     sliderViewportWidth = 0; // Width per slide. Slider viewport width
-    isSlidingLimitForAnimation = false; // Current slide is in the limit (right or left) and it is retrieving
+    isAnimatingSliderToRestore = false; // Current slide is retrieving to its original position
 
     isStartingDragging = false; // The slide is dragging
     clickXPosition = 0; // Click X position of the mouse or touch
@@ -131,7 +134,7 @@
     protected get sliderTransitionStyle(): Partial<CSSStyleDeclaration> {
       return {
         transition: `transform ${
-          this.isSlidingLimitForAnimation
+          this.isAnimatingSliderToRestore
             ? this.slidingAnimationTimeInMs / 2
             : this.slidingAnimationTimeInMs
         }ms ease-out 0s`
@@ -144,6 +147,10 @@
 
     protected get isLastSlide(): boolean {
       return this.firstIndexItemCurrentSlide === this.maxFirstIndexItem;
+    }
+
+    protected get isMouseDisplacementGreaterThanMin(): boolean {
+      return Math.abs(this.mouseDisplacementInDraggingInPx) > this.minDraggingDisplacement;
     }
 
     @Watch('itemsPerSlide', { immediate: false })
@@ -161,8 +168,7 @@
           ? this.maxFirstIndexItem
           : newActiveSlideIndex * this.itemsPerSlide;
 
-      this.currentSliderPositionInPx = -this.firstIndexItemCurrentSlide * this.itemWidth;
-      this.baseSliderPositionInPx = this.currentSliderPositionInPx;
+      this.setCurrentSliderPosition();
     }
 
     addEventListeners(): void {
@@ -203,16 +209,26 @@
       this.baseSliderPositionInPx = 0;
     }
 
+    setCurrentSliderPosition(): void {
+      this.currentSliderPositionInPx = -this.firstIndexItemCurrentSlide * this.itemWidth;
+      this.baseSliderPositionInPx = this.currentSliderPositionInPx;
+    }
+
     startDrag(event: MouseEvent | TouchEvent): void {
       this.isStartingDragging = true;
       this.clickXPosition = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
     }
 
     stopDrag(): void {
-      if (this.isStartingDragging && this.mouseDisplacementInDraggingInPx !== 0) {
+      if (this.isStartingDragging) {
         const displacementDirection =
           this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
-        this.moveSlide(displacementDirection);
+        if (this.isMouseDisplacementGreaterThanMin && !this.isSliderLimit(displacementDirection)) {
+          this.moveSlide(displacementDirection);
+        } else {
+          this.setSliderAnimationToRestoreSlide();
+          this.setCurrentSliderPosition();
+        }
         this.mouseDisplacementInDraggingInPx = 0;
       }
       this.isStartingDragging = false;
@@ -241,7 +257,7 @@
       this.timeBetweenScrollEventsInMs = timeNow;
     }
 
-    areSliderLimits(displacementDirection: SlideDirection): boolean {
+    isSliderLimit(displacementDirection: SlideDirection): boolean {
       const isLeftSliderLimit: boolean =
         this.isFirstSlide && displacementDirection === SlideDirection.LEFT;
       const isRightSliderLimit: boolean =
@@ -250,36 +266,28 @@
       return isLeftSliderLimit || isRightSliderLimit;
     }
 
-    setSliderLimit(): void {
-      this.currentSliderPositionInPx =
-        this.currentDisplacementDirection === SlideDirection.RIGHT
-          ? -this.firstIndexItemCurrentSlide * this.itemWidth
-          : 0;
-      this.baseSliderPositionInPx = this.currentSliderPositionInPx;
+    setSliderAnimationToRestoreSlide(callback?: () => void): void {
+      this.isAnimatingSliderToRestore = true;
+      setTimeout(() => {
+        callback?.();
+        this.isAnimatingSliderToRestore = false;
+      }, this.slidingAnimationTimeInMs / 2);
     }
 
     moveSlideOnScrollAnimation(displacementDirection: SlideDirection): void {
-      if (this.areSliderLimits(displacementDirection)) {
-        this.isSlidingLimitForAnimation = true;
-        setTimeout(() => {
-          this.isSlidingLimitForAnimation = false;
-          this.moveSlide(displacementDirection);
-        }, this.slidingAnimationTimeInMs / 2);
+      if (this.isSliderLimit(displacementDirection)) {
+        this.setSliderAnimationToRestoreSlide(() => this.setCurrentSliderPosition());
       } else {
         this.moveSlide(displacementDirection);
       }
     }
 
     moveSlide(displacementDirection: SlideDirection): void {
-      if (this.areSliderLimits(displacementDirection)) {
-        this.setSliderLimit();
-      } else {
-        const slideIndexTo =
-          displacementDirection === SlideDirection.RIGHT
-            ? this.activeSlideIndex + 1
-            : this.activeSlideIndex - 1;
-        this.emitDisplaceSliderTo(slideIndexTo);
-      }
+      const slideIndexTo =
+        displacementDirection === SlideDirection.RIGHT
+          ? this.activeSlideIndex + 1
+          : this.activeSlideIndex - 1;
+      this.emitDisplaceSliderTo(slideIndexTo);
     }
 
     emitDisplaceSliderTo(slideIndexTo: number): void {

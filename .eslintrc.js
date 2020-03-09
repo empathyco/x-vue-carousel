@@ -82,7 +82,6 @@ const jestPluginRules = {
   'jest/valid-title': 'error'
 };
 
-
 module.exports = {
   root: true,
   env: { node: true },

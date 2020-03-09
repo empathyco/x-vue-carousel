@@ -6,6 +6,7 @@
       :itemMarginRightInPx="itemMarginRightInPx"
       :withArrows="withArrows"
       :slidingAnimationTimeInMs="slidingAnimationTimeInMs"
+      :minDraggingDisplacement="minDraggingDisplacement"
       :activeSlideIndex="activeSlideIndex"
     />
     <Pagination
@@ -44,6 +45,9 @@
 
     @Prop({ default: 500 })
     slidingAnimationTimeInMs!: number;
+
+    @Prop({ default: 100 })
+    minDraggingDisplacement!: number;
 
     activeSlideIndex = 0;
 

@@ -3,9 +3,7 @@
     :items="items"
     :itemsPerSlide="itemsPerSlide"
     :itemMarginRightInPx="itemMarginRightInPx"
-    :withPagination="true"
     :withArrows="withArrows"
-    :slidingAnimationTimeInMs="500"
   />
 </template>
 

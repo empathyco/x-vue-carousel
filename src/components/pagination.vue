@@ -49,7 +49,10 @@
 
       &-dot {
         display: inline-block;
-        margin-right: 12px;
+
+        &:not(:last-child) {
+          margin-right: 12px;
+        }
 
         &-button {
           height: 12px;
@@ -65,6 +68,7 @@
 
         &__active .eco-carousel-pagination-container-dot__button {
           background-color: $active-color;
+          cursor: default;
         }
       }
     }
