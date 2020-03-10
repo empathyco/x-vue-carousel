@@ -1,10 +1,5 @@
 <template>
-  <Carousel
-    :items="items"
-    :itemsPerSlide="itemsPerSlide"
-    :itemMarginRightInPx="itemMarginRightInPx"
-    :withArrows="withArrows"
-  />
+  <Carousel v-bind="{ items, itemsPerSlide, itemMarginRightInPx, withArrows }" />
 </template>
 
 <script lang="ts">

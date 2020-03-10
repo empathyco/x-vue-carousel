@@ -2,19 +2,20 @@
   <div class="eco-carousel">
     <Slider
       class="eco-carousel-slider eco-carousel__slider"
-      :items="items"
-      :itemsPerSlide="itemsPerSlide"
-      :itemMarginRightInPx="itemMarginRightInPx"
-      :withArrows="withArrows"
-      :slidingAnimationTimeInMs="slidingAnimationTimeInMs"
-      :minDraggingDisplacement="minDraggingDisplacement"
-      :activeSlideIndex="activeSlideIndex"
+      v-bind="{
+        items,
+        itemsPerSlide,
+        itemMarginRightInPx,
+        withArrows,
+        slidingAnimationTimeInMs,
+        minDraggingDisplacement,
+        activeSlideIndex
+      }"
     />
     <Pagination
       v-if="withPagination"
       class="eco-carousel-pagination eco-carousel__pagination"
-      :slidesLength="slidesLength"
-      :activeSlideIndex="activeSlideIndex"
+      v-bind="{ slidesLength, activeSlideIndex }"
     />
   </div>
 </template>
