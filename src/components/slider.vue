@@ -1,61 +1,46 @@
 <template>
-  <div
-    ref="ecoCarouselSlider"
-    class="eco-carousel-slider eco-carousel__slider"
-    :class="sliderDynamicCssClasses"
-  >
+  <div ref="slider" class="eco-slider" :class="dynamicCssClasses">
     <section
       @touchstart.prevent.stop="startDrag($event)"
       @mousedown.left.prevent.stop="startDrag($event)"
       @wheel.prevent.stop="scroll($event)"
-      class="eco-carousel-slider-content eco-carousel-slider__content"
+      class="eco-slider-content eco-slider__content"
       :style="[sliderTranslationStyle, sliderTransitionStyle]"
     >
       <Item
         v-for="item in items"
         :key="item.id"
         :item="item"
-        class="eco-carousel-slider-content__item"
+        class="eco-slider-content__item"
         :style="{
           width: `${itemWidthWithoutMargin}px`,
           'margin-right': `${itemMarginRightInPx}px`
         }"
       />
     </section>
-    <button
+    <NavigationGroup
       v-if="withArrows"
-      @click="moveSlide(slideDirections.LEFT)"
-      class="eco-carousel-slider-left-button eco-carousel-slider__left-button"
-      :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
-    >
-      <ChevronIcon class="eco-carousel-slider-left-button__arrow-icon left-arrow-icon" />
-    </button>
-    <button
-      v-if="withArrows"
-      @click="moveSlide(slideDirections.RIGHT)"
-      class="eco-carousel-slider-right-button eco-carousel-slider__right-button"
-      :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
-    >
-      <ChevronIcon class="eco-carousel-slider-right-button__arrow-icon right-arrow-icon" />
-    </button>
+      class="eco-slider-navigation-group eco-slider__navigation-group"
+      v-bind="{ activeSlideIndex, slidingAnimationTimeInMs, isLastSlide }"
+    />
   </div>
 </template>
 
 <script lang="ts">
-  import ChevronIcon from '@/components/icons/chevron.vue';
   import Item from '@/components/item.vue';
+  import { MoveSlideMixin } from '@/components/mixins/move-slide';
+  import NavigationGroup from '@/components/navigation-button/navigation-group.vue';
   import { Item as ItemModel } from '@/models/item.model';
-  import { EVENTS } from '@/utils/events.const';
   import { SlideDirection } from '@/utils/slide-direction.enum';
   import { VueCssClasses } from '@/utils/types';
-  import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+  import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 
   const TIME_BETWEEN_SCROLL_EVENTS = 50;
 
   @Component({
-    components: { Item, ChevronIcon }
+    components: { Item, NavigationGroup }
   })
-  export default class Slider extends Vue {
+  export default class Slider extends Mixins(MoveSlideMixin) {
     @Prop({ required: true })
     items!: ItemModel[];
 
@@ -76,8 +61,6 @@
 
     @Prop({ required: true })
     activeSlideIndex!: number;
-
-    slideDirections = SlideDirection; // Just to use it inside the template
 
     sliderViewportWidth = 0; // Width per slide. Slider viewport width
     isAnimatingSliderToRestore = false; // Current slide is retrieving to its original position
@@ -112,17 +95,17 @@
       return this.itemWidth - this.itemMarginRightInPx;
     }
 
-    protected get sliderDynamicCssClasses(): VueCssClasses {
+    protected get dynamicCssClasses(): VueCssClasses {
       return [
-        `eco-carousel-slider--${this.currentDisplacementDirection}`,
+        `eco-slider--${this.currentDisplacementDirection}`,
         {
           /* Just we consider it is dragging if the mouse displacement is not zero to avoid disable
-          the transition animation in a second click while it is animating */
-          'eco-carousel-slider--dragging':
+           the transition animation in a second click while it is animating */
+          'eco-slider--dragging':
             this.isStartingDragging && this.mouseDisplacementInDraggingInPx !== 0,
-          'eco-carousel-slider--grabbing': this.isStartingDragging,
-          'eco-carousel-slider--at-start': this.isFirstSlide,
-          'eco-carousel-slider--at-end': this.isLastSlide
+          'eco-slider--grabbing': this.isStartingDragging,
+          'eco-slider--at-start': this.isFirstSlide,
+          'eco-slider--at-end': this.isLastSlide
         }
       ];
     }
@@ -200,7 +183,7 @@
     }
 
     initSliderView(): void {
-      const slider = this.$refs.ecoCarouselSlider as HTMLDivElement;
+      const slider = this.$refs.slider as HTMLDivElement;
       this.sliderViewportWidth = slider.clientWidth + this.itemMarginRightInPx;
 
       this.currentSliderPositionInPx = 0;
@@ -224,7 +207,7 @@
         const displacementDirection =
           this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
         if (this.isMouseDisplacementGreaterThanMin && !this.isSliderLimit(displacementDirection)) {
-          this.moveSlide(displacementDirection);
+          this.moveSlide(displacementDirection, this.activeSlideIndex);
         } else {
           this.setSliderAnimationToRestoreSlide();
           this.setCurrentSliderPosition();
@@ -278,30 +261,14 @@
       if (this.isSliderLimit(displacementDirection)) {
         this.setSliderAnimationToRestoreSlide(() => this.setCurrentSliderPosition());
       } else {
-        this.moveSlide(displacementDirection);
+        this.moveSlide(displacementDirection, this.activeSlideIndex);
       }
-    }
-
-    moveSlide(displacementDirection: SlideDirection): void {
-      const slideIndexTo =
-        displacementDirection === SlideDirection.RIGHT
-          ? this.activeSlideIndex + 1
-          : this.activeSlideIndex - 1;
-      this.emitDisplaceSliderTo(slideIndexTo);
-    }
-
-    emitDisplaceSliderTo(slideIndexTo: number): void {
-      // Event will be emitted to Carousel Component
-      this.$parent.$emit(EVENTS.DisplaceSliderTo, slideIndexTo);
     }
   }
 </script>
 
 <style lang="scss">
-  $button-size: 40px;
-  $button-margin: 5px;
-
-  .eco-carousel-slider {
+  .eco-slider {
     position: relative;
 
     &-content {
@@ -316,49 +283,12 @@
       }
     }
 
-    &__left-button,
-    &__right-button {
-      position: absolute;
-      top: calc(50% - #{$button-size / 2});
-      width: $button-size;
-      height: $button-size;
-      opacity: 1;
-      background: white;
-      border-radius: 50%;
-      border: none;
-      box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-      outline: none;
-      cursor: pointer;
-
-      &:hover {
-        pointer-events: all;
-      }
-    }
-
-    &__left-button {
-      left: $button-margin;
-    }
-
-    &__right-button {
-      right: $button-margin;
-    }
-
-    &--dragging .eco-carousel-slider__content {
+    &--dragging .eco-slider__content {
       transition: none !important;
     }
 
-    &--grabbing .eco-carousel-slider__content {
+    &--grabbing .eco-slider__content {
       cursor: grabbing;
-    }
-
-    &--at-start .eco-carousel-slider__left-button {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    &--at-end .eco-carousel-slider__right-button {
-      opacity: 0;
-      pointer-events: none;
     }
   }
 </style>

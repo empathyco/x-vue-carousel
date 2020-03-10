@@ -1,6 +1,7 @@
 <template>
-  <div class="eco-carousel eco__carousel">
+  <div class="eco-carousel">
     <Slider
+      class="eco-carousel-slider eco-carousel__slider"
       :items="items"
       :itemsPerSlide="itemsPerSlide"
       :itemMarginRightInPx="itemMarginRightInPx"
@@ -11,6 +12,7 @@
     />
     <Pagination
       v-if="withPagination"
+      class="eco-carousel-pagination eco-carousel__pagination"
       :slidesLength="slidesLength"
       :activeSlideIndex="activeSlideIndex"
     />
@@ -18,11 +20,13 @@
 </template>
 
 <script lang="ts">
+  import Bus from '@/bus/bus';
   import Pagination from '@/components/pagination.vue';
   import Slider from '@/components/slider.vue';
   import { Item as ItemModel } from '@/models/item.model';
   import { EVENTS } from '@/utils/events.const';
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import Vue from 'vue';
+  import { Component, Prop } from 'vue-property-decorator';
 
   @Component({
     components: { Slider, Pagination }
@@ -46,13 +50,13 @@
     @Prop({ default: 500 })
     slidingAnimationTimeInMs!: number;
 
-    @Prop({ default: 100 })
+    @Prop({ default: 150 })
     minDraggingDisplacement!: number;
 
     activeSlideIndex = 0;
 
     mounted(): void {
-      this.$on(EVENTS.DisplaceSliderTo, (slideIndexTo: number) => {
+      Bus.$on(EVENTS.DisplaceSliderTo, (slideIndexTo: number) => {
         this.activeSlideIndex = slideIndexTo;
       });
       window.addEventListener('resize', () => this.initCarousel());

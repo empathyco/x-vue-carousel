@@ -1,14 +1,15 @@
 <template>
-  <article class="eco-carousel-item eco-carousel__item">
-    <img class="eco-carousel-item__image" :src="item.image" :alt="item.description" />
-    <p class="eco-carousel-item__description">{{ item.description }}</p>
-    <p class="eco-carousel-item__price">{{ item.price }}</p>
+  <article class="eco-item">
+    <img class="eco-item__image" :src="item.image" :alt="item.description" />
+    <p class="eco-item__description">{{ item.description }}</p>
+    <p class="eco-item__price">{{ item.price }}</p>
   </article>
 </template>
 
 <script lang="ts">
   import { Item as ItemModel } from '@/models/item.model';
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import Vue from 'vue';
+  import { Component, Prop } from 'vue-property-decorator';
 
   @Component
   export default class Item extends Vue {
@@ -18,7 +19,7 @@
 </script>
 
 <style lang="scss">
-  .eco-carousel-item {
+  .eco-item {
     text-align: center;
 
     &__image {

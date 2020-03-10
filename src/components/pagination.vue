@@ -1,24 +1,23 @@
 <template>
-  <div class="eco-carousel-pagination eco-carousel__pagination">
-    <ul class="eco-carousel-pagination-container eco-carousel-pagination__container">
+  <div class="eco-pagination">
+    <ul class="eco-pagination-container eco-pagination__container">
       <li
         v-for="(_, i) in slidesLength"
         :key="i"
-        class="eco-carousel-pagination-container-dot eco-carousel-pagination-container__dot"
-        :class="{ 'eco-carousel-pagination-container-dot__active': i === activeSlideIndex }"
+        class="eco-pagination-container-dot eco-pagination-container__dot"
+        :class="{ 'eco-pagination-container-dot--active': i === activeSlideIndex }"
       >
-        <button
-          @click="emitDisplaceSliderTo(i)"
-          class="eco-carousel-pagination-container-dot-button eco-carousel-pagination-container-dot__button"
-        />
+        <button @click="emitDisplaceSliderTo(i)" class="eco-pagination-container-dot__button" />
       </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
+  import Bus from '@/bus/bus';
   import { EVENTS } from '@/utils/events.const';
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import Vue from 'vue';
+  import { Component, Prop } from 'vue-property-decorator';
 
   @Component
   export default class Pagination extends Vue {
@@ -29,17 +28,15 @@
     activeSlideIndex!: number;
 
     emitDisplaceSliderTo(slideIndexTo: number): void {
-      // Event will be emitted to Carousel Component
-      this.$parent.$emit(EVENTS.DisplaceSliderTo, slideIndexTo);
+      Bus.$emit(EVENTS.DisplaceSliderTo, slideIndexTo);
     }
   }
 </script>
 
 <style lang="scss">
-  $default-color: #85abb3;
-  $active-color: #32565e;
+  @import './src/styles/theme';
 
-  .eco-carousel-pagination {
+  .eco-pagination {
     text-align: center;
 
     &-container {
@@ -54,20 +51,20 @@
           margin-right: 12px;
         }
 
-        &-button {
+        &__button {
           height: 12px;
           width: 12px;
           padding: 0;
           border: none;
           border-radius: 50%;
-          background-color: $default-color;
+          background-color: $pagination-default-color;
           box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
           outline: none;
           cursor: pointer;
         }
 
-        &__active .eco-carousel-pagination-container-dot__button {
-          background-color: $active-color;
+        &--active .eco-pagination-container-dot__button {
+          background-color: $pagination-active-color;
           cursor: default;
         }
       }
