@@ -1,11 +1,9 @@
-import Bus from '@/bus/bus';
-import { EVENTS } from '@/utils/events.const';
+import { EmitToCarouselMixin } from '@/components/mixins/emit-to-carousel';
 import { SlideDirection } from '@/utils/slide-direction.enum';
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Mixins, Prop } from 'vue-property-decorator';
 
 @Component
-export class MoveSlideMixin extends Vue {
+export class MoveSlideMixin extends Mixins(EmitToCarouselMixin) {
   @Prop({ required: true })
   activeSlideIndex!: number;
 
@@ -14,10 +12,6 @@ export class MoveSlideMixin extends Vue {
       displacementDirection === SlideDirection.RIGHT
         ? this.activeSlideIndex + 1
         : this.activeSlideIndex - 1;
-    this.emitDisplaceSliderTo(slideIndexTo);
-  }
-
-  emitDisplaceSliderTo(slideIndexTo: number): void {
-    Bus.$emit(EVENTS.DisplaceSliderTo, slideIndexTo);
+    this.emitDisplaceSlider(slideIndexTo);
   }
 }

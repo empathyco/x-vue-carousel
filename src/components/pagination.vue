@@ -7,29 +7,23 @@
         class="eco-pagination-container-dot eco-pagination-container__dot"
         :class="{ 'eco-pagination-container-dot--active': i === activeSlideIndex }"
       >
-        <button @click="emitDisplaceSliderTo(i)" class="eco-pagination-container-dot__button" />
+        <button @click="emitDisplaceSlider(i)" class="eco-pagination-container-dot__button" />
       </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
-  import Bus from '@/bus/bus';
-  import { EVENTS } from '@/utils/events.const';
-  import Vue from 'vue';
-  import { Component, Prop } from 'vue-property-decorator';
+  import { EmitToCarouselMixin } from '@/components/mixins/emit-to-carousel';
+  import { Component, Mixins, Prop } from 'vue-property-decorator';
 
   @Component
-  export default class Pagination extends Vue {
+  export default class Pagination extends Mixins(EmitToCarouselMixin) {
     @Prop({ required: true })
     slidesLength!: number;
 
     @Prop({ required: true })
     activeSlideIndex!: number;
-
-    emitDisplaceSliderTo(slideIndexTo: number): void {
-      Bus.$emit(EVENTS.DisplaceSliderTo, slideIndexTo);
-    }
   }
 </script>
 

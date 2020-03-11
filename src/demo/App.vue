@@ -1,8 +1,20 @@
 <template>
   <div class="app-demo">
+    <Carousel v-bind="{ items, itemsPerSlide, itemMarginRightInPx, withArrows }" />
     <Carousel
-      v-bind="{ items, itemsPerSlide, itemMarginRightInPx, withArrows }"
+      v-bind="{ items, withArrows }"
+      :itemsPerSlide="10"
+      :itemMarginRightInPx="5"
+      :withPagination="false"
+      :slidingAnimationTimeInMs="1000"
       :navigationButtonIcon="arrowIconComponent"
+    />
+    <Carousel
+      v-bind="{ items }"
+      :itemsPerSlide="3"
+      :itemMarginRightInPx="100"
+      :withArrows="false"
+      :slidingAnimationTimeInMs="200"
     />
   </div>
 </template>

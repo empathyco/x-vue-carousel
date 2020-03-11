@@ -115,7 +115,7 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
     if (this.isStartingDragging) {
       const displacementDirection =
         this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
-      if (this.isMouseDisplacementGreaterThanMin && !this.isSliderLimit(displacementDirection)) {
+      if (this.isMouseDisplacementGreaterThanMin() && !this.isSliderLimit(displacementDirection)) {
         this.moveSlide(displacementDirection);
       } else {
         this.setSliderAnimationToRestoreSlide();

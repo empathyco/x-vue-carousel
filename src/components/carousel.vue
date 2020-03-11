@@ -1,5 +1,5 @@
 <template>
-  <div class="eco-carousel">
+  <div ref="carousel" class="eco-carousel">
     <Slider
       class="eco-carousel-slider eco-carousel__slider"
       v-bind="{
@@ -22,7 +22,6 @@
 </template>
 
 <script lang="ts">
-  import Bus from '@/bus/bus';
   import { default as ChevronIcon } from '@/components/icons/chevron.vue';
   import Pagination from '@/components/pagination.vue';
   import Slider from '@/components/slider.vue';
@@ -63,7 +62,7 @@
     activeSlideIndex = 0;
 
     mounted(): void {
-      Bus.$on(EVENTS.DisplaceSliderTo, (slideIndexTo: number) => {
+      this.$on(EVENTS.DisplaceSliderTo, (slideIndexTo: number) => {
         this.activeSlideIndex = slideIndexTo;
       });
       window.addEventListener('resize', () => this.initCarousel());
