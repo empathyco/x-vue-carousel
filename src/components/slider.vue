@@ -207,7 +207,7 @@
         const displacementDirection =
           this.mouseDisplacementInDraggingInPx > 0 ? SlideDirection.LEFT : SlideDirection.RIGHT;
         if (this.isMouseDisplacementGreaterThanMin && !this.isSliderLimit(displacementDirection)) {
-          this.moveSlide(displacementDirection, this.activeSlideIndex);
+          this.moveSlide(displacementDirection);
         } else {
           this.setSliderAnimationToRestoreSlide();
           this.setCurrentSliderPosition();
@@ -229,10 +229,11 @@
     scroll(wheel: WheelEvent): void {
       const timeNow = new Date().getTime();
       if (timeNow - this.timeBetweenScrollEventsInMs > TIME_BETWEEN_SCROLL_EVENTS) {
-        if (wheel.deltaX > 0 || wheel.deltaY < 0) {
+        // TODO - Assess to append support vertical scroll wheel.deltaY < 0 wheel.deltaY > 0
+        if (wheel.deltaX > 0) {
           this.currentSliderPositionInPx = -this.itemWidth + this.baseSliderPositionInPx;
           this.moveSlideOnScrollAnimation(SlideDirection.RIGHT);
-        } else if (wheel.deltaX < 0 || wheel.deltaY > 0) {
+        } else if (wheel.deltaX < 0) {
           this.currentSliderPositionInPx = this.itemWidth + this.baseSliderPositionInPx;
           this.moveSlideOnScrollAnimation(SlideDirection.LEFT);
         }
@@ -261,7 +262,7 @@
       if (this.isSliderLimit(displacementDirection)) {
         this.setSliderAnimationToRestoreSlide(() => this.setCurrentSliderPosition());
       } else {
-        this.moveSlide(displacementDirection, this.activeSlideIndex);
+        this.moveSlide(displacementDirection);
       }
     }
   }

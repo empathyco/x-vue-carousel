@@ -6,11 +6,11 @@ import { Component } from 'vue-property-decorator';
 
 @Component
 export class MoveSlideMixin extends Vue {
-  moveSlide(displacementDirection: SlideDirection, currentSlideIndex: number): void {
+  moveSlide(displacementDirection: SlideDirection): void {
+    // Every component which uses this mixin should have the activeSlideIndex prop
+    const activeSlideIndex: number = (this as any).activeSlideIndex;
     const slideIndexTo =
-      displacementDirection === SlideDirection.RIGHT
-        ? currentSlideIndex + 1
-        : currentSlideIndex - 1;
+      displacementDirection === SlideDirection.RIGHT ? activeSlideIndex + 1 : activeSlideIndex - 1;
     this.emitDisplaceSliderTo(slideIndexTo);
   }
 

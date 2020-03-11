@@ -1,6 +1,6 @@
 <template>
   <button
-    @click="moveSlide(slideDirection, activeSlideIndex)"
+    @click="moveSlide(slideDirection)"
     class="eco-navigation-button"
     :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
   >
