@@ -16,9 +16,6 @@
   @Component
   export default class NavigationButton extends Mixins(MoveSlideMixin) {
     @Prop({ required: true })
-    activeSlideIndex!: number;
-
-    @Prop({ required: true })
     slideDirection!: SlideDirection;
 
     @Prop({ required: true })
