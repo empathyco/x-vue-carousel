@@ -1,32 +1,27 @@
 <template>
   <div class="eco-navigation-group" :class="dynamicCssClasses">
     <NavigationButton
-      v-bind="{ activeSlideIndex, slidingAnimationTimeInMs }"
+      v-bind="{ activeSlideIndex, slidingAnimationTimeInMs, navigationButtonIcon }"
       :slideDirection="slideDirections.LEFT"
       class="eco-navigation-group-left-button eco-navigation-group__left-button"
-    >
-      <ChevronIcon class="eco-navigation-group-left-button__arrow-icon left-arrow-icon" />
-    </NavigationButton>
+    />
     <NavigationButton
-      v-bind="{ activeSlideIndex, slidingAnimationTimeInMs }"
+      v-bind="{ activeSlideIndex, slidingAnimationTimeInMs, navigationButtonIcon }"
       :slideDirection="slideDirections.RIGHT"
       class="eco-navigation-group-right-button eco-navigation-group__right-button"
-    >
-      <ChevronIcon class="eco-navigation-group-right-button__arrow-icon right-arrow-icon" />
-    </NavigationButton>
+    />
   </div>
 </template>
 
 <script lang="ts">
-  import { ChevronIcon } from '@/components/icons';
   import { SlideDirection } from '@/utils/slide-direction.enum';
   import { VueCssClasses } from '@/utils/types';
-  import Vue from 'vue';
+  import Vue, { VueConstructor } from 'vue';
   import { Component, Prop } from 'vue-property-decorator';
   import NavigationButton from './navigation-button.vue';
 
   @Component({
-    components: { ChevronIcon, NavigationButton }
+    components: { NavigationButton }
   })
   export default class NavigationGroup extends Vue {
     @Prop({ required: true })
@@ -37,6 +32,9 @@
 
     @Prop({ required: true })
     isLastSlide!: boolean;
+
+    @Prop({ required: true })
+    navigationButtonIcon!: VueConstructor;
 
     slideDirections = SlideDirection; // Just to use it inside the template
 
@@ -55,14 +53,6 @@
   @import './src/styles/theme';
 
   .eco-navigation-group {
-    &__left-button {
-      left: $navigation-button-margin;
-    }
-
-    &__right-button {
-      right: $navigation-button-margin;
-    }
-
     &--at-start .eco-navigation-group__left-button,
     &--at-end .eco-navigation-group__right-button {
       opacity: 0;

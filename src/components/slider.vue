@@ -21,7 +21,12 @@
     <NavigationGroup
       v-if="withArrows"
       class="eco-slider-navigation-group eco-slider__navigation-group"
-      v-bind="{ activeSlideIndex, slidingAnimationTimeInMs, isLastSlide }"
+      v-bind="{
+        activeSlideIndex,
+        slidingAnimationTimeInMs,
+        isLastSlide,
+        navigationButtonIcon
+      }"
     />
   </div>
 </template>
@@ -31,6 +36,7 @@
   import { SlidingMixin } from '@/components/mixins/sliding';
   import NavigationGroup from '@/components/navigation-button/navigation-group.vue';
   import { VueCssClasses } from '@/utils/types';
+  import { VueConstructor } from 'vue';
   import { Component, Mixins, Prop } from 'vue-property-decorator';
 
   @Component({
@@ -42,6 +48,9 @@
 
     @Prop({ required: true })
     withArrows!: boolean;
+
+    @Prop({ required: true })
+    navigationButtonIcon!: VueConstructor;
 
     mounted(): void {
       this.initSliderViewport();

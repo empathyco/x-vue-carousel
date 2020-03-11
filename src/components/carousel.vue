@@ -3,30 +3,32 @@
     <Slider
       class="eco-carousel-slider eco-carousel__slider"
       v-bind="{
+        activeSlideIndex,
         items,
         itemsPerSlide,
         itemMarginRightInPx,
         withArrows,
         slidingAnimationTimeInMs,
         minDraggingDisplacement,
-        activeSlideIndex
+        navigationButtonIcon
       }"
     />
     <Pagination
       v-if="withPagination"
       class="eco-carousel-pagination eco-carousel__pagination"
-      v-bind="{ slidesLength, activeSlideIndex }"
+      v-bind="{ activeSlideIndex, slidesLength }"
     />
   </div>
 </template>
 
 <script lang="ts">
   import Bus from '@/bus/bus';
+  import { default as ChevronIcon } from '@/components/icons/chevron.vue';
   import Pagination from '@/components/pagination.vue';
   import Slider from '@/components/slider.vue';
   import { Item as ItemModel } from '@/models/item.model';
   import { EVENTS } from '@/utils/events.const';
-  import Vue from 'vue';
+  import Vue, { VueConstructor } from 'vue';
   import { Component, Prop } from 'vue-property-decorator';
 
   @Component({
@@ -53,6 +55,10 @@
 
     @Prop({ default: 150 })
     minDraggingDisplacement!: number;
+
+    // Object & Arrays prop defaults must be returned from a function https://vuejs.org/v2/guide/components-props.html
+    @Prop({ default: () => ChevronIcon })
+    navigationButtonIcon!: VueConstructor;
 
     activeSlideIndex = 0;
 

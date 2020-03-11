@@ -1,5 +1,10 @@
 <template>
-  <Carousel v-bind="{ items, itemsPerSlide, itemMarginRightInPx, withArrows }" />
+  <div class="app-demo">
+    <Carousel
+      v-bind="{ items, itemsPerSlide, itemMarginRightInPx, withArrows }"
+      :navigationButtonIcon="arrowIconComponent"
+    />
+  </div>
 </template>
 
 <script lang="ts">
@@ -7,12 +12,16 @@
   import { Item as ItemModel } from '@/models/item.model';
   import { Component, Vue } from 'vue-property-decorator';
   import { ItemsData } from './items-data';
+  import { default as ArrowIcon } from './arrow.vue';
 
   @Component({
     components: { Carousel }
   })
   export default class App extends Vue {
     windowWidth = window.innerWidth;
+
+    // Need to be reactive to pass it as prop
+    arrowIconComponent = ArrowIcon;
 
     mounted(): void {
       window.addEventListener('resize', () => this.setWindowWidth());

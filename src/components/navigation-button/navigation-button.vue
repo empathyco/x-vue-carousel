@@ -2,15 +2,22 @@
   <button
     @click="moveSlide(slideDirection)"
     class="eco-navigation-button"
+    :class="dynamicCssClassesButton"
     :style="{ transition: `opacity ${slidingAnimationTimeInMs / 2}ms ease-out 0s` }"
   >
-    <slot class="eco-navigation-button__icon" />
+    <component
+      :is="navigationButtonIcon"
+      class="eco-navigation-button__icon"
+      :class="dynamicCssClassesIcon"
+    />
   </button>
 </template>
 
 <script lang="ts">
   import { MoveSlideMixin } from '@/components/mixins/move-slide';
   import { SlideDirection } from '@/utils/slide-direction.enum';
+  import { VueCssClasses } from '@/utils/types';
+  import { VueConstructor } from 'vue';
   import { Component, Mixins, Prop } from 'vue-property-decorator';
 
   @Component
@@ -20,6 +27,29 @@
 
     @Prop({ required: true })
     slidingAnimationTimeInMs!: number;
+
+    @Prop({ required: true })
+    navigationButtonIcon!: VueConstructor;
+
+    protected get dynamicCssClassesButton(): VueCssClasses {
+      return [
+        {
+          'eco-navigation-button__left': this.slideDirection === SlideDirection.LEFT,
+          'eco-navigation-button__right': this.slideDirection === SlideDirection.RIGHT
+        }
+      ];
+    }
+
+    protected get dynamicCssClassesIcon(): VueCssClasses {
+      return [
+        {
+          'eco-navigation-left-button__arrow-icon left-arrow-icon':
+            this.slideDirection === SlideDirection.LEFT,
+          'eco-navigation-right-button__arrow-icon right-arrow-icon':
+            this.slideDirection === SlideDirection.RIGHT
+        }
+      ];
+    }
   }
 </script>
 
@@ -41,6 +71,14 @@
 
     &:hover {
       pointer-events: all;
+    }
+
+    &__left {
+      left: $navigation-button-margin;
+    }
+
+    &__right {
+      right: $navigation-button-margin;
     }
   }
 </style>
