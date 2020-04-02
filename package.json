@@ -7,7 +7,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
+    "lint": "vue-cli-service lint demo src tests",
     "test:unit": "vue-cli-service test:unit",
     "commit": "git-cz",
     "release": "standard-version --no-verify",
@@ -67,8 +67,8 @@
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    "./src/**/*.{vue,js,jsx,ts,tsx}": [
-      "vue-cli-service lint"
+    "./**/*.{vue,js,jsx,ts,tsx}": [
+      "npm run lint"
     ]
   },
   "config": {

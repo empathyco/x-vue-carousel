@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-  import { Item as ItemModel } from '../data/models/item.model';
+  import { Item as ItemModel } from '../models/item.model';
   import Vue from 'vue';
   import { Component, Prop } from 'vue-property-decorator';
 

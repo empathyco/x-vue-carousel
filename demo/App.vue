@@ -36,7 +36,7 @@
 <script lang="ts">
   import Carousel from '@/components/carousel.vue';
   import Item from './components/item.vue';
-  import { Item as ItemModel } from './data/models/item.model';
+  import { Item as ItemModel } from './models/item.model';
   import { Component, Vue } from 'vue-property-decorator';
   import { ItemsData } from './data/items-data';
   import { default as ArrowIcon } from './components/arrow.vue';
