@@ -2,7 +2,8 @@ import { MoveSlideMixin } from '@/components/mixins/move-slide';
 import { SlideDirection } from '@/utils/slide-direction.enum';
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 
-const TIME_BETWEEN_SCROLL_EVENTS = 50;
+const TIME_BETWEEN_SCROLL_EVENTS_IN_MS = 50;
+const Y_MOVEMENT_MARGIN_IN_PX = 20;
 
 @Component
 export class SlidingMixin extends Mixins(MoveSlideMixin) {
@@ -23,6 +24,7 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
 
   isStartingDragging = false; // The slide is dragging
   clickXPosition = 0; // Click X position of the mouse or touch
+  clickYPosition = 0; // Click Y position of the mouse or touch (to prevent dragging)
   mouseDisplacementInDraggingInPx = 0; // Mouse displacement in dragging regarding X position click
   thereWasMouseDisplacementInDragging = false; // There was mouse displacement in the last dragging interaction
 
@@ -81,7 +83,9 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
     window.addEventListener('mousemove', (event: MouseEvent) => this.drag(event));
 
     window.addEventListener('touchend', () => this.stopDrag());
-    window.addEventListener('touchmove', (event: TouchEvent) => this.drag(event));
+    window.addEventListener('touchmove', (event: TouchEvent) =>
+      this.preventDraggingInYMovement(event)
+    );
   }
 
   removeSlidingEventListeners(): void {
@@ -89,7 +93,9 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
     window.removeEventListener('mousemove', (event: MouseEvent) => this.drag(event));
 
     window.removeEventListener('touchend', () => this.stopDrag());
-    window.removeEventListener('touchmove', (event: TouchEvent) => this.drag(event));
+    window.removeEventListener('touchmove', (event: TouchEvent) =>
+      this.preventDraggingInYMovement(event)
+    );
   }
 
   setCurrentSliderPosition(): void {
@@ -100,12 +106,22 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
   startDrag(event: MouseEvent | TouchEvent): void {
     this.isStartingDragging = true;
     this.clickXPosition = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    this.clickYPosition = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+  }
+
+  preventDraggingInYMovement(event: TouchEvent): void {
+    const currentYPos = event.touches[0].clientY;
+    if (Math.abs(this.clickYPosition - currentYPos) > Y_MOVEMENT_MARGIN_IN_PX) {
+      this.stopDrag();
+    } else {
+      this.drag(event);
+    }
   }
 
   drag(event: MouseEvent | TouchEvent): void {
     if (this.isStartingDragging) {
-      const xPosition = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-      this.mouseDisplacementInDraggingInPx = xPosition - this.clickXPosition;
+      const currentXPos = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+      this.mouseDisplacementInDraggingInPx = currentXPos - this.clickXPosition;
       this.currentSliderPositionInPx =
         this.mouseDisplacementInDraggingInPx + this.baseSliderPositionInPx;
     }
@@ -130,7 +146,7 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
   scroll(event: WheelEvent): void {
     this.preventXMovement(event);
     const timeNow = new Date().getTime();
-    if (timeNow - this.timeBetweenScrollEventsInMs > TIME_BETWEEN_SCROLL_EVENTS) {
+    if (timeNow - this.timeBetweenScrollEventsInMs > TIME_BETWEEN_SCROLL_EVENTS_IN_MS) {
       // TODO - Assess to append support vertical scroll event.deltaY < 0 event.deltaY > 0
       if (event.deltaX > 0) {
         this.currentSliderPositionInPx = -this.itemWidth + this.baseSliderPositionInPx;
