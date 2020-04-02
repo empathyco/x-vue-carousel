@@ -1,22 +1,14 @@
 <template>
   <div ref="slider" class="eco-slider" :class="dynamicCssClasses">
     <section
+      ref="sliderContent"
       @touchstart.prevent.stop="startDrag($event)"
       @mousedown.left.prevent.stop="startDrag($event)"
       @wheel.prevent.stop="scroll($event)"
       class="eco-slider-content eco-slider__content"
       :style="[sliderTranslationStyle, sliderTransitionStyle]"
     >
-      <Item
-        v-for="item in items"
-        :key="item.id"
-        :item="item"
-        class="eco-slider-content__item"
-        :style="{
-          width: `${itemWidthWithoutMargin}px`,
-          'margin-right': `${itemMarginRightInPx}px`
-        }"
-      />
+      <slot />
     </section>
     <NavigationGroup
       v-if="withArrows"
@@ -32,15 +24,14 @@
 </template>
 
 <script lang="ts">
-  import Item from '@/components/item.vue';
   import { SlidingMixin } from '@/components/mixins/sliding';
   import NavigationGroup from '@/components/navigation-button/navigation-group.vue';
   import { VueCssClasses } from '@/utils/types';
   import { VueConstructor } from 'vue';
-  import { Component, Mixins, Prop } from 'vue-property-decorator';
+  import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 
   @Component({
-    components: { Item, NavigationGroup }
+    components: { NavigationGroup }
   })
   export default class Slider extends Mixins(SlidingMixin) {
     @Prop({ required: true })
@@ -51,6 +42,19 @@
 
     @Prop({ required: true })
     navigationButtonIcon!: VueConstructor;
+
+    @Watch('itemWidthWithoutMargin')
+    onItemWidthOrMarginChanged(): void {
+      /* Hack to append width and margin-right styles dynamically to every item passed through
+      the default slot */
+      const listItems = (this.$refs.sliderContent as HTMLElement)?.children;
+      for (const item of listItems) {
+        item.setAttribute(
+          'style',
+          `width: ${this.itemWidthWithoutMargin}px; margin-right: ${this.itemMarginRightInPx}px;`
+        );
+      }
+    }
 
     mounted(): void {
       this.initSliderViewport();
@@ -117,7 +121,7 @@
       will-change: transform;
       cursor: grab;
 
-      &__item {
+      * {
         flex: 1 0 auto;
       }
     }

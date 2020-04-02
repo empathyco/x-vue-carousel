@@ -1,5 +1,4 @@
 import { MoveSlideMixin } from '@/components/mixins/move-slide';
-import { Item as ItemModel } from '@/models/item.model';
 import { SlideDirection } from '@/utils/slide-direction.enum';
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 
@@ -8,7 +7,7 @@ const TIME_BETWEEN_SCROLL_EVENTS = 50;
 @Component
 export class SlidingMixin extends Mixins(MoveSlideMixin) {
   @Prop({ required: true })
-  items!: ItemModel[];
+  itemsLength!: number;
 
   @Prop({ required: true })
   itemsPerSlide!: number;
@@ -46,7 +45,7 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
       newActiveSlideIndex < oldActiveSlideIndex ? SlideDirection.LEFT : SlideDirection.RIGHT;
 
     this.firstIndexItemCurrentSlide =
-      newActiveSlideIndex === Math.floor(this.items.length / this.itemsPerSlide)
+      newActiveSlideIndex === Math.floor(this.itemsLength / this.itemsPerSlide)
         ? this.maxFirstIndexItem
         : newActiveSlideIndex * this.itemsPerSlide;
 
@@ -66,7 +65,7 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
   }
 
   initSlider(): void {
-    const lengthAndPerSlideDiff = this.items.length - this.itemsPerSlide;
+    const lengthAndPerSlideDiff = this.itemsLength - this.itemsPerSlide;
     this.maxFirstIndexItem = lengthAndPerSlideDiff >= 0 ? lengthAndPerSlideDiff : 0;
 
     this.currentSliderPositionInPx = 0;

@@ -3,8 +3,8 @@
     <Slider
       class="eco-carousel-slider eco-carousel__slider"
       v-bind="{
+        itemsLength,
         activeSlideIndex,
-        items,
         itemsPerSlide,
         itemMarginRightInPx,
         withArrows,
@@ -12,7 +12,9 @@
         minDraggingDisplacement,
         navigationButtonIcon
       }"
-    />
+    >
+      <slot />
+    </Slider>
     <Pagination
       v-if="withPagination"
       class="eco-carousel-pagination eco-carousel__pagination"
@@ -25,7 +27,6 @@
   import { default as ChevronIcon } from '@/components/icons/chevron.vue';
   import Pagination from '@/components/pagination.vue';
   import Slider from '@/components/slider.vue';
-  import { Item as ItemModel } from '@/models/item.model';
   import { EVENTS } from '@/utils/events.const';
   import Vue, { VueConstructor } from 'vue';
   import { Component, Prop } from 'vue-property-decorator';
@@ -34,9 +35,6 @@
     components: { Slider, Pagination }
   })
   export default class Carousel extends Vue {
-    @Prop({ required: true })
-    items!: ItemModel[];
-
     @Prop({ default: 4 })
     itemsPerSlide!: number;
 
@@ -60,6 +58,11 @@
     navigationButtonIcon!: VueConstructor;
 
     activeSlideIndex = 0;
+    itemsLength!: number;
+
+    beforeCreate(): void {
+      this.itemsLength = this.$slots.default?.length ?? 0;
+    }
 
     mounted(): void {
       this.$on(EVENTS.DisplaceSliderTo, (slideIndexTo: number) => {
@@ -73,7 +76,7 @@
     }
 
     protected get slidesLength(): number {
-      return Math.ceil(this.items.length / this.itemsPerSlide);
+      return Math.ceil(this.itemsLength / this.itemsPerSlide);
     }
 
     initCarousel(): void {

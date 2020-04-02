@@ -1,13 +1,13 @@
 <template>
-  <article class="eco-item">
-    <img class="eco-item__image" :src="item.image" :alt="item.description" />
-    <p class="eco-item__description">{{ item.description }}</p>
-    <p class="eco-item__price">{{ item.price }}</p>
+  <article class="client-item">
+    <img class="client-item__image" :src="item.image" :alt="item.description" />
+    <p class="client-item__description">{{ item.description }}</p>
+    <p class="client-item__price">{{ item.price }}</p>
   </article>
 </template>
 
 <script lang="ts">
-  import { Item as ItemModel } from '@/models/item.model';
+  import { Item as ItemModel } from '../data/models/item.model';
   import Vue from 'vue';
   import { Component, Prop } from 'vue-property-decorator';
 
@@ -19,7 +19,7 @@
 </script>
 
 <style lang="scss">
-  .eco-item {
+  .client-item {
     text-align: center;
 
     &__image {
