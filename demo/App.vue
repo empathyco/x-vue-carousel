@@ -13,6 +13,15 @@
       <p>This a text</p>
       <p>This a text</p>
     </Carousel>
+
+    <Carousel v-bind="{ itemMarginRightInPx, withArrows }" :itemsPerSlide="4">
+      <p>This a text</p>
+      <p>This a text</p>
+      <p>This a text</p>
+      <p>This a text</p>
+      <p>This a text</p>
+      <p>This a text</p>
+    </Carousel>
     <!--
     <Carousel
       v-bind="{ items, withArrows }"

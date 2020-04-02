@@ -24,6 +24,7 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
   isStartingDragging = false; // The slide is dragging
   clickXPosition = 0; // Click X position of the mouse or touch
   mouseDisplacementInDraggingInPx = 0; // Mouse displacement in dragging regarding X position click
+  thereWasMouseDisplacementInDragging = false; // There was mouse displacement in the last dragging interaction
 
   baseSliderPositionInPx = 0; // Slider position in pixels (number of slides in pixels)
   currentSliderPositionInPx = 0; // Current position in pixels (depends on the mouse displacement)
@@ -120,19 +121,21 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
         this.setSliderAnimationToRestoreSlide();
         this.setCurrentSliderPosition();
       }
+      this.thereWasMouseDisplacementInDragging = this.mouseDisplacementInDraggingInPx !== 0;
       this.mouseDisplacementInDraggingInPx = 0;
     }
     this.isStartingDragging = false;
   }
 
-  scroll(wheel: WheelEvent): void {
+  scroll(event: WheelEvent): void {
+    this.preventXMovement(event);
     const timeNow = new Date().getTime();
     if (timeNow - this.timeBetweenScrollEventsInMs > TIME_BETWEEN_SCROLL_EVENTS) {
-      // TODO - Assess to append support vertical scroll wheel.deltaY < 0 wheel.deltaY > 0
-      if (wheel.deltaX > 0) {
+      // TODO - Assess to append support vertical scroll event.deltaY < 0 event.deltaY > 0
+      if (event.deltaX > 0) {
         this.currentSliderPositionInPx = -this.itemWidth + this.baseSliderPositionInPx;
         this.moveSlideOnScrollAnimation(SlideDirection.RIGHT);
-      } else if (wheel.deltaX < 0) {
+      } else if (event.deltaX < 0) {
         this.currentSliderPositionInPx = this.itemWidth + this.baseSliderPositionInPx;
         this.moveSlideOnScrollAnimation(SlideDirection.LEFT);
       }
@@ -167,5 +170,17 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
       callback?.();
       this.isAnimatingSliderToRestore = false;
     }, this.slidingAnimationTimeInMs / 2);
+  }
+
+  preventClick(event: MouseEvent): void {
+    if (this.thereWasMouseDisplacementInDragging) {
+      event.preventDefault();
+    }
+  }
+
+  preventXMovement(event: WheelEvent): void {
+    if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+      event.preventDefault();
+    }
   }
 }

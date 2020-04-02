@@ -1,3 +1,4 @@
 export const EVENTS = {
-  DisplaceSliderTo: 'displace-slider-to'
+  DisplaceSliderTo: 'displace-slider-to',
+  WindowWidthChanged: 'window-width-changed'
 };

@@ -2,9 +2,10 @@
   <div ref="slider" class="eco-slider" :class="dynamicCssClasses">
     <section
       ref="sliderContent"
-      @touchstart.prevent.stop="startDrag($event)"
-      @mousedown.left.prevent.stop="startDrag($event)"
-      @wheel.prevent.stop="scroll($event)"
+      @touchstart="startDrag($event)"
+      @mousedown.left.prevent="startDrag($event)"
+      @click="preventClick($event)"
+      @wheel="scroll($event)"
       class="eco-slider-content eco-slider__content"
       :style="[sliderTranslationStyle, sliderTransitionStyle]"
     >
@@ -26,6 +27,7 @@
 <script lang="ts">
   import { SlidingMixin } from '@/components/mixins/sliding';
   import NavigationGroup from '@/components/navigation-button/navigation-group.vue';
+  import { EVENTS } from '@/utils/events.const';
   import { VueCssClasses } from '@/utils/types';
   import { VueConstructor } from 'vue';
   import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
@@ -46,7 +48,7 @@
     @Watch('itemWidthWithoutMargin')
     onItemWidthOrMarginChanged(): void {
       /* Hack to append width and margin-right styles dynamically to every item passed through
-      the default slot */
+       * the default slot */
       const listItems = (this.$refs.sliderContent as HTMLElement)?.children;
       for (const item of listItems) {
         item.setAttribute(
@@ -60,12 +62,12 @@
       this.initSliderViewport();
 
       this.addSlidingEventListeners();
-      window.addEventListener('resize', () => this.initSliderViewport());
+      this.$parent.$on(EVENTS.WindowWidthChanged, () => this.initSliderViewport());
     }
 
     beforeDestroy(): void {
       this.removeSlidingEventListeners();
-      window.removeEventListener('resize', () => this.initSliderViewport());
+      this.$parent.$off(EVENTS.WindowWidthChanged);
     }
 
     protected get itemWidthWithoutMargin(): number {
@@ -77,7 +79,7 @@
         `eco-slider--${this.currentDisplacementDirection}`,
         {
           /* Just we consider it is dragging if the mouse displacement is not zero to avoid disable
-           the transition animation in a second click while it is animating */
+           * the transition animation in a second click while it is animating */
           'eco-slider--dragging':
             this.isStartingDragging && this.mouseDisplacementInDraggingInPx !== 0,
           'eco-slider--grabbing': this.isStartingDragging,
@@ -123,6 +125,7 @@
 
       * {
         flex: 1 0 auto;
+        cursor: grab;
       }
     }
 
@@ -132,6 +135,10 @@
 
     &--grabbing .eco-slider__content {
       cursor: grabbing;
+
+      * {
+        cursor: grabbing;
+      }
     }
   }
 </style>

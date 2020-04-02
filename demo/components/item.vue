@@ -1,8 +1,10 @@
 <template>
   <article class="client-item">
-    <img class="client-item__image" :src="item.image" :alt="item.description" />
-    <p class="client-item__description">{{ item.description }}</p>
-    <p class="client-item__price">{{ item.price }}</p>
+    <a href="#">
+      <img class="client-item__image" :src="item.image" :alt="item.description" />
+      <p class="client-item__description">{{ item.description }}</p>
+      <p class="client-item__price">{{ item.price }}</p>
+    </a>
   </article>
 </template>
 

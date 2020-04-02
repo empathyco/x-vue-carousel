@@ -50,7 +50,7 @@
     @Prop({ default: 500 })
     slidingAnimationTimeInMs!: number;
 
-    @Prop({ default: 150 })
+    @Prop({ default: 50 })
     minDraggingDisplacement!: number;
 
     // Object & Arrays prop defaults must be returned from a function https://vuejs.org/v2/guide/components-props.html
@@ -59,6 +59,8 @@
 
     activeSlideIndex = 0;
     itemsLength!: number;
+
+    windowWidth!: number;
 
     beforeCreate(): void {
       this.itemsLength = this.$slots.default?.length ?? 0;
@@ -69,9 +71,11 @@
         this.activeSlideIndex = slideIndexTo;
       });
       window.addEventListener('resize', () => this.initCarousel());
+      this.windowWidth = window.innerWidth;
     }
 
     beforeDestroy(): void {
+      this.$off(EVENTS.DisplaceSliderTo);
       window.removeEventListener('resize', () => this.initCarousel());
     }
 
@@ -80,7 +84,14 @@
     }
 
     initCarousel(): void {
-      this.activeSlideIndex = 0;
+      /* Chrome in mobile on scroll down hides the search box header and a resize event is fired.
+       * To avoid this behaviour, the carousel just is initialized when the window width has been
+       * resized */
+      if (this.windowWidth !== window.innerWidth) {
+        this.activeSlideIndex = 0;
+        this.$emit(EVENTS.WindowWidthChanged);
+        this.windowWidth = window.innerWidth;
+      }
     }
   }
 </script>
