@@ -14,7 +14,7 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
   itemsPerSlide!: number;
 
   @Prop({ required: true })
-  minDraggingDisplacement!: number;
+  minDraggingDisplacementInPx!: number;
 
   @Prop({ required: true })
   slidingAnimationTimeInMs!: number;
@@ -147,7 +147,6 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
     this.preventXMovement(event);
     const timeNow = new Date().getTime();
     if (timeNow - this.timeBetweenScrollEventsInMs > TIME_BETWEEN_SCROLL_EVENTS_IN_MS) {
-      // TODO - Assess to append support vertical scroll event.deltaY < 0 event.deltaY > 0
       if (event.deltaX > 0) {
         this.currentSliderPositionInPx = -this.itemWidth + this.baseSliderPositionInPx;
         this.moveSlideOnScrollAnimation(SlideDirection.RIGHT);
@@ -168,7 +167,7 @@ export class SlidingMixin extends Mixins(MoveSlideMixin) {
   }
 
   isMouseDisplacementGreaterThanMin(): boolean {
-    return Math.abs(this.mouseDisplacementInDraggingInPx) > this.minDraggingDisplacement;
+    return Math.abs(this.mouseDisplacementInDraggingInPx) > this.minDraggingDisplacementInPx;
   }
 
   isSliderLimit(displacementDirection: SlideDirection): boolean {

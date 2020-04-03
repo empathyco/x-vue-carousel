@@ -32,6 +32,7 @@
 
   .eco-pagination {
     text-align: center;
+    margin-top: 10px;
 
     &-container {
       list-style-type: none;

@@ -9,7 +9,7 @@
         itemMarginRightInPx,
         withArrows,
         slidingAnimationTimeInMs,
-        minDraggingDisplacement,
+        minDraggingDisplacementInPx,
         navigationButtonIcon
       }"
     >
@@ -51,7 +51,7 @@
     slidingAnimationTimeInMs!: number;
 
     @Prop({ default: 50 })
-    minDraggingDisplacement!: number;
+    minDraggingDisplacementInPx!: number;
 
     // Object & Arrays prop defaults must be returned from a function https://vuejs.org/v2/guide/components-props.html
     @Prop({ default: () => ChevronIcon })

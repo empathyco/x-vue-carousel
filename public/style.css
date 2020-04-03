@@ -23,20 +23,5 @@ body {
 
 .demo-title {
   text-align: center;
-}
-
-.eco-carousel {
-  width: 80%;
-  margin: 0 auto 70px;
-  border-right: 2px solid #85abb3;
-  border-left: 2px solid #85abb3;
-}
-
-@media only screen and (max-width: 980px) {
-  .eco-carousel {
-    margin: 0;
-    padding: 10px;
-    width: calc(100% - 20px);
-    border: none;
-  }
+  margin-bottom: 50px;
 }
